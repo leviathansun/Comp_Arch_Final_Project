@@ -1,3 +1,6 @@
 print("Testing the github update process")
+inputFile = open("test1_bin.txt", "r")
 print("Hello")
-file1 = open("test1_bin.txt", "r")
+dataList =[inputFile.readlines()]
+print(dataList)
+inputFile.close()
