@@ -17,13 +17,12 @@ functionCodes[0] = {'name': "SLL", 'subType': 0}
 functionCodes[2] = {'name': "SLR", 'subType': 0}
 functionCodes[8] = {'name': "JR", 'subType': 1}
 functionCodes[10] = {'name': "MOVZ", 'subType': 2}
-functionCodes[13] = {'name': "BREAK", 'subType': 0}
+functionCodes[13] = {'name': "BREAK", 'subType': 3}
 functionCodes[32] = {'name': "ADD", 'subType': 2}
 functionCodes[34] = {'name': "SUB", 'subType': 2}
 functionCodes[36] = {'name': "AND", 'subType': 2}
 functionCodes[37] = {'name': "OR", 'subType': 2}
 functionCodes[38] = {'name': "XOR", 'subType': 2}
-functionCodes[99] = {'name': "NOP", 'subType': 0}
 
 registers = {
     0: "R0",
@@ -70,29 +69,34 @@ for line in inputFile:
         validbit = line[0]
         opcode = line[1:6]
         group1 = line[7:11]
-        group2 = line[12:16]
-        group3 = line[17:21]
-        group4 = line[22:26]
-        group5 = line[27:32]
+        group2 = line[11:16]
+        group3 = line[16:21]
+        group4 = line[21:25]
+        group5 = line[25:32]
         sys.stdout.write(validbit + ' ' + opcode + ' ' + group1 + ' ' + group2 + ' ' + group3 + ' ' + group4 \
                          + ' ' + group5 + ' ' + str(memoryLocation))
         if int(validbit) is 0:
             sys.stdout.write(" Invalid Instruction")
         else:
-            if int(line[1:6], 2) is 0:
-                rs = registers[int(line[7:11], 2)]
-                rt = registers[int(line[12:16], 2)]
-                rd = registers[int(line[17:21], 2)]
-                sa = registers[int(line[22:26], 2)]
-                function = int(line[27:32], 2)
+            if int(opcode, 2) is 0:
+                rs = registers[int(group1, 2)]
+                rt = registers[int(group2, 2)]
+                rd = registers[int(group3, 2)]
+                sa = int(group4, 2)
+                function = int(group5, 2)
                 functionname = functionCodes[function]['name']
                 subtype = functionCodes[function]['subType']
                 if subtype is 0:
-                    sys.stdout.write(' ' + functionname + ' ' + rd + ', ' + rt + ', #' + str(sa))
+                    if rd is 0 and rt is 0:
+                        sys.stdout.write(' ' + "NOP")
+                    else:
+                        sys.stdout.write(' ' + functionname + ' ' + rd + ', ' + rt + ', #' + str(sa))
                 if subtype is 1:
                     sys.stdout.write(' ' + functionname + ' ' + rs)
                 if subtype is 2:
                     sys.stdout.write(' ' + functionname + ' ' + rd + ', ' + rs + ', ' + rt)
+                if subtype is 3:
+                    sys.stdout.write(' ' + functionname)
                 if functionname is "BREAK":
                     breakFound = True
 
