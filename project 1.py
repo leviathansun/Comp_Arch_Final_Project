@@ -1,16 +1,15 @@
 import sys
 import os
 
-opcodes = {
-    0: "rtyp",
-    2: "J",
-    5: "BNE",
-    6: "BLEZ",
-    8: "ADDI",
-    28: "MUL",
-    35: "LW",
-    43: "SW"
-}
+opcodes = {}
+opcodes[0] = {'name': "R", 'subType': 0}
+opcodes[2] = {'name': "J", 'subType': 4}
+opcodes[5] = {'name': "BNE", 'subType': 5}
+opcodes[6] = {'name': "BLEZ", 'subType': 6}
+opcodes[8] = {'name': "ADDI", 'subType': 8}
+opcodes[28] = {'name': "MUL", 'subType': 7}
+opcodes[3] = {'name': "LW", 'subType': 5}
+opcodes[11] = {'name': "SW", 'subType': 5}
 
 functionCodes = {}
 functionCodes[0] = {'name': "SLL", 'subType': 0}
@@ -59,6 +58,11 @@ registers = {
     31: "R31"
 }
 
+def twos_comp(number, bitlength):
+    if (number & (1 << (bitlength - 1))) != 0:
+        number = number - (1 << bitlength)
+    return number
+
 inputFile = open("test1_bin.txt", "r")
 print("Welcome to this Bullshit")
 
@@ -99,10 +103,15 @@ for line in inputFile:
                     sys.stdout.write(' ' + functionname)
                 if functionname is "BREAK":
                     breakFound = True
-
-        sys.stdout.write("\n")
+            else:
+                function = int(opcode, 2)
+                functionname = opcodes[function]['name']
+                sys.stdout.write(' ' + functionname)
     else:
-        sys.stdout.write(line)
+        sys.stdout.write(line[0:32])
+        sys.stdout.write(' ' + str(twos_comp(int(line[0:32], 2), len(line[0:32]))))
+    sys.stdout.write("\n")
+    sys.stdout.flush()
     memoryLocation += 4
 
 inputFile.close()
