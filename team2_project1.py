@@ -152,13 +152,19 @@ class Dissasembler(object):
 # driver for program
 def run():
     dissasembler1 = Dissasembler()
-
-    if len(sys.argv)==2:
-        dissasembler1.dirty_work(sys.argv[1], sys.argv[2])
-    if len(sys.argv)==3:
-        dissasembler1.dirty_work(sys.argv[1], "team2_out_dis.txt")
-    else:
-        dissasembler1.dirty_work("test1_bin.txt", "team2_out_dis.txt")
+    inputFileName = ""
+    outputFileName = ""
+    for i in range(len(sys.argv)):
+        if (sys.argv[i] == '-i' and i < (len(sys.argv) - 1)):
+            inputFileName = sys.argv[i + 1]
+        elif (sys.argv[i] == '-o' and i < (len(sys.argv) - 1)):
+            outputFileName = sys.argv[i + 1]
+            outputFileName = outputFileName + ".txt"
+    if not inputFileName:
+        inputFileName = "test1_bin.txt"
+    if not outputFileName:
+        outputFileName = "team2_out.txt"
+    dissasembler1.dirty_work(inputFileName, outputFileName)
 
     return
 
