@@ -65,9 +65,9 @@ class Dissasembler(object):
         pass
 
     # method that runs the dissasember
-    def dirty_work(self, input_name):
+    def dirty_work(self, input_name, output_name):
         input_file = open(input_name, "r")
-        output_file = open("team2_out_dis.txt", "w")
+        output_file = open(output_name, "w")
 
         memory_location = 96
         break_found = False
@@ -142,8 +142,7 @@ class Dissasembler(object):
         input_file.close()
         output_file.close()
 
-
-# method used to compute the 2's compliment
+    # method used to compute the 2's compliment
     def twos_comp(self, number, bitlength):
         if (number & (1 << (bitlength - 1))) != 0:
             number = number - (1 << bitlength)
@@ -152,9 +151,15 @@ class Dissasembler(object):
 
 # driver for program
 def run():
-    print("running")
     dissasembler1 = Dissasembler()
-    dissasembler1.dirty_work("test1_bin.txt")
+
+    if len(sys.argv)==2:
+        dissasembler1.dirty_work(sys.argv[1], sys.argv[2])
+    if len(sys.argv)==3:
+        dissasembler1.dirty_work(sys.argv[1], "team2_out_dis.txt")
+    else:
+        dissasembler1.dirty_work("test1_bin.txt", "team2_out_dis.txt")
+
     return
 
 
