@@ -75,7 +75,7 @@ class Dissasembler(object):
             if break_found is False:
                 validbit = line[0]
                 opcode = line[1:6]
-                group1 = line[7:11]
+                group1 = line[6:11]
                 group2 = line[11:16]
                 group3 = line[16:21]
                 group4 = line[21:25]
@@ -109,7 +109,17 @@ class Dissasembler(object):
                     else:
                         funct = int(opcode, 2)
                         function_name = opcodes[funct]['name']
-                        output_file.write(' ' + function_name)
+                        subtype = opcodes[funct]['subType']
+                        if subtype is 4:
+                            jumpCode = int(line[6:32], 2)*4
+                            output_file.write(' ' + function_name + ' #' + str(jumpCode))
+                        if subtype is 5:
+                            rs = registers[int(group1, 2)]
+                            rt = registers[int(group2, 2)]
+                            offset = int(line[16:32], 2)
+                            output_file.write(' ' + function_name + ' ' + rt + ' ' + str(offset) + '(' + rs + ')')
+                        else:
+                            output_file.write(' ' + function_name)
             else:
                 output_file.write(line[0:32])
                 output_file.write(' ' + str(self.twos_comp(int(line[0:32], 2), len(line[0:32]))))
