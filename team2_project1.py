@@ -124,7 +124,7 @@ class Dissasembler(object):
                         if subtype is 6:
                             rs = registers[int(group1, 2)]
                             offset = int(line[16:32], 2)*4
-                            output_file.write(' ' + function_name + ' ' + rt + ', #' + str(offset))
+                            output_file.write(' ' + function_name + ' ' + rs + ', #' + str(offset))
                         if subtype is 7:
                             rs = registers[int(group1, 2)]
                             rt = registers[int(group2, 2)]
@@ -154,19 +154,19 @@ class Dissasembler(object):
 # driver for program
 def run():
     dissasembler1 = Dissasembler()
-    inputFileName = ""
-    outputFileName = ""
+    inputfilename = ""
+    outputfilename = ""
     for i in range(len(sys.argv)):
         if (sys.argv[i] == '-i' and i < (len(sys.argv) - 1)):#check for input file name
-            inputFileName = sys.argv[i + 1]
+            inputfilename = sys.argv[i + 1]
         elif (sys.argv[i] == '-o' and i < (len(sys.argv) - 1)):#check for output file name
-            outputFileName = sys.argv[i + 1]
-            outputFileName = outputFileName + "_dis.txt"
-    if not inputFileName:#default file names if not given
-        inputFileName = "test1_bin.txt"
-    if not outputFileName:
-        outputFileName = "team2_out_dis.txt"
-    dissasembler1.dirty_work(inputFileName, outputFileName)
+            outputfilename = sys.argv[i + 1]
+            outputfilename = outputfilename + "_dis.txt"
+    if not inputfilename:#default file names if not given
+        inputfilename = "test1_bin.txt"
+    if not outputfilename:
+        outputfilename = "team2_out_dis.txt"
+    dissasembler1.dirty_work(inputfilename, outputfilename)
 
     return
 
