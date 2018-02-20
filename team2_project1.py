@@ -165,7 +165,7 @@ def run():
     if not inputFileName:#default file names if not given
         inputFileName = "test1_bin.txt"
     if not outputFileName:
-        outputFileName = "team2_out.txt"
+        outputFileName = "team2_out_dis.txt"
     dissasembler1.dirty_work(inputFileName, outputFileName)
 
     return
