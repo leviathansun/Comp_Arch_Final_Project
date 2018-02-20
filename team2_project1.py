@@ -1,6 +1,7 @@
 import sys
 import os
 
+#dictionary of opcodes that relate their name,binary code, and a subtype used to identify their output
 opcodes = {}
 opcodes[0] = {'name': "R", 'subType': 0}
 opcodes[2] = {'name': "J", 'subType': 4}
@@ -11,6 +12,7 @@ opcodes[28] = {'name': "MUL", 'subType': 7}
 opcodes[3] = {'name': "LW", 'subType': 5}
 opcodes[11] = {'name': "SW", 'subType': 5}
 
+#dictionary of Function codes that relate their name,binary code, and a subtype used to identify their output
 functionCodes = {}
 functionCodes[0] = {'name': "SLL", 'subType': 0}
 functionCodes[2] = {'name': "SRL", 'subType': 0}
@@ -23,6 +25,7 @@ functionCodes[36] = {'name': "AND", 'subType': 2}
 functionCodes[37] = {'name': "OR", 'subType': 2}
 functionCodes[38] = {'name': "XOR", 'subType': 2}
 
+#list of all registers
 registers = {
     0: "R0",
     1: "R1",

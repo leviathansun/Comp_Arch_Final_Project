@@ -18,3 +18,4 @@ It will list all files and folder in your current directory
 Once you have verified you are in the correct directory run the following command:
 team2_project1.py -i test1_bin.txt -o team2_out
 Substituting test1_bin.txt for the name of your input file and team2_out with what you want your output file to be called
+If no parameters are given, the names defaults to the above file names
