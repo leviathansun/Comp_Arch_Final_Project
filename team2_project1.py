@@ -71,9 +71,9 @@ class Dissasembler(object):
 
         memory_location = 96
         break_found = False
-        for line in input_file:
+        for line in input_file:#iterate through every line in file
             if break_found is False:
-                validbit = line[0]
+                validbit = line[0] #parse out the bits
                 opcode = line[1:6]
                 group1 = line[6:11]
                 group2 = line[11:16]
@@ -81,11 +81,11 @@ class Dissasembler(object):
                 group4 = line[21:26]
                 group5 = line[26:32]
                 output_file.write(validbit + ' ' + opcode + ' ' + group1 + ' ' + group2 + ' ' + group3 + ' ' + group4
-                                  + ' ' + group5 + ' ' + str(memory_location))
-                if int(validbit) is 0:
+                                  + ' ' + group5 + ' ' + str(memory_location)) #space output
+                if int(validbit) is 0:#check for invalid instruction
                     output_file.write(" Invalid Instruction")
                 else:
-                    if int(opcode, 2) is 0:
+                    if int(opcode, 2) is 0:#Check for R type and use function code
                         rs = registers[int(group1, 2)]
                         rt = registers[int(group2, 2)]
                         rd = registers[int(group3, 2)]
@@ -106,7 +106,7 @@ class Dissasembler(object):
                             output_file.write(' ' + function_name)
                         if function_name is "BREAK":
                             break_found = True
-                    else:
+                    else:#not R type instructions
                         funct = int(opcode, 2)
                         function_name = opcodes[funct]['name']
                         subtype = opcodes[funct]['subType']
@@ -132,19 +132,18 @@ class Dissasembler(object):
                             rt = registers[int(group2, 2)]
                             immediate = str(self.twos_comp(int(line[16:32], 2), len(line[16:32])))
                             output_file.write(' ' + function_name + ' ' + rt + ', ' + rs + ', #' + str(immediate))
-            else:
+            else:#Output after Break
                 output_file.write(line[0:32])
                 output_file.write(' ' + str(self.twos_comp(int(line[0:32], 2), len(line[0:32]))))
             output_file.write("\n")
-            output_file.flush()
-            memory_location += 4
-
+            memory_location += 4 # iterate memory location
+        #close out files
         input_file.close()
         output_file.close()
 
     # method used to compute the 2's compliment
     def twos_comp(self, number, bitlength):
-        if (number & (1 << (bitlength - 1))) != 0:
+        if (number & (1 << (bitlength - 1))) != 0:#check first digit
             number = number - (1 << bitlength)
         return number
 
@@ -155,12 +154,12 @@ def run():
     inputFileName = ""
     outputFileName = ""
     for i in range(len(sys.argv)):
-        if (sys.argv[i] == '-i' and i < (len(sys.argv) - 1)):
+        if (sys.argv[i] == '-i' and i < (len(sys.argv) - 1)):#check for input file name
             inputFileName = sys.argv[i + 1]
-        elif (sys.argv[i] == '-o' and i < (len(sys.argv) - 1)):
+        elif (sys.argv[i] == '-o' and i < (len(sys.argv) - 1)):#check for output file name
             outputFileName = sys.argv[i + 1]
             outputFileName = outputFileName + ".txt"
-    if not inputFileName:
+    if not inputFileName:#default file names if not given
         inputFileName = "test1_bin.txt"
     if not outputFileName:
         outputFileName = "team2_out.txt"
