@@ -13,7 +13,7 @@ opcodes[11] = {'name': "SW", 'subType': 5}
 
 functionCodes = {}
 functionCodes[0] = {'name': "SLL", 'subType': 0}
-functionCodes[2] = {'name': "SLR", 'subType': 0}
+functionCodes[2] = {'name': "SRL", 'subType': 0}
 functionCodes[8] = {'name': "JR", 'subType': 1}
 functionCodes[10] = {'name': "MOVZ", 'subType': 2}
 functionCodes[13] = {'name': "BREAK", 'subType': 3}
@@ -78,8 +78,8 @@ class Dissasembler(object):
                 group1 = line[6:11]
                 group2 = line[11:16]
                 group3 = line[16:21]
-                group4 = line[21:25]
-                group5 = line[25:32]
+                group4 = line[21:26]
+                group5 = line[26:32]
                 output_file.write(validbit + ' ' + opcode + ' ' + group1 + ' ' + group2 + ' ' + group3 + ' ' + group4
                                   + ' ' + group5 + ' ' + str(memory_location))
                 if int(validbit) is 0:
@@ -117,9 +117,21 @@ class Dissasembler(object):
                             rs = registers[int(group1, 2)]
                             rt = registers[int(group2, 2)]
                             offset = int(line[16:32], 2)
-                            output_file.write(' ' + function_name + ' ' + rt + ' ' + str(offset) + '(' + rs + ')')
-                        else:
-                            output_file.write(' ' + function_name)
+                            output_file.write(' ' + function_name + ' ' + rt + ', ' + str(offset) + '(' + rs + ')')
+                        if subtype is 6:
+                            rs = registers[int(group1, 2)]
+                            offset = int(line[16:32], 2)*4
+                            output_file.write(' ' + function_name + ' ' + rt + ', #' + str(offset))
+                        if subtype is 7:
+                            rs = registers[int(group1, 2)]
+                            rt = registers[int(group2, 2)]
+                            rd = registers[int(group3, 2)]
+                            output_file.write(' ' + function_name + ' ' + rd + ', ' + rs + ', ' + rt)
+                        if subtype is 8:
+                            rs = registers[int(group1, 2)]
+                            rt = registers[int(group2, 2)]
+                            immediate = str(self.twos_comp(int(line[16:32], 2), len(line[16:32])))
+                            output_file.write(' ' + function_name + ' ' + rt + ', ' + rs + ', #' + str(immediate))
             else:
                 output_file.write(line[0:32])
                 output_file.write(' ' + str(self.twos_comp(int(line[0:32], 2), len(line[0:32]))))
