@@ -1,12 +1,12 @@
-Project 1 -Python dissasembler for MIPS machine code
+#Project 1 -Python dissasembler for MIPS machine code
 
 
-Group 2 for CS 3339-264
+##Group 2 for CS 3339-264
 Chris Grassel: cmg239
 Levi Stalsworth: lts25
 
 
-How To Run:
+###How To Run:
 Running this code in LINUX command line:
 first navigate to the directory that the python script is located.
 This is done by using chdir
