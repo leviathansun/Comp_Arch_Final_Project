@@ -55,63 +55,83 @@ registers = {
     28: "R28",
     29: "R29",
     30: "R30",
-    31: "R31"
+    31: "R31",
 }
 
-def twos_comp(number, bitlength):
-    if (number & (1 << (bitlength - 1))) != 0:
-        number = number - (1 << bitlength)
-    return number
 
-inputFile = open("test1_bin.txt", "r")
-print("Welcome to this Bullshit")
+class Dissasembler(object):
+    # initializer / instance attributes
+    def _init_(self):
+        pass
 
-memoryLocation = 96
-breakFound = False
-for line in inputFile:
-    if breakFound is False:
-        validbit = line[0]
-        opcode = line[1:6]
-        group1 = line[7:11]
-        group2 = line[11:16]
-        group3 = line[16:21]
-        group4 = line[21:25]
-        group5 = line[25:32]
-        sys.stdout.write(validbit + ' ' + opcode + ' ' + group1 + ' ' + group2 + ' ' + group3 + ' ' + group4 \
-                         + ' ' + group5 + ' ' + str(memoryLocation))
-        if int(validbit) is 0:
-            sys.stdout.write(" Invalid Instruction")
-        else:
-            if int(opcode, 2) is 0:
-                rs = registers[int(group1, 2)]
-                rt = registers[int(group2, 2)]
-                rd = registers[int(group3, 2)]
-                sa = int(group4, 2)
-                function = int(group5, 2)
-                functionname = functionCodes[function]['name']
-                subtype = functionCodes[function]['subType']
-                if subtype is 0:
-                    if rd is 0 and rt is 0:
-                        sys.stdout.write(' ' + "NOP")
+    # method that runs the dissasember
+    def dirty_work(self, input_name):
+        input_file = open(input_name, "r")
+        output_file = open("team2_out_dis.txt", "w")
+
+        memory_location = 96
+        break_found = False
+        for line in input_file:
+            if break_found is False:
+                validbit = line[0]
+                opcode = line[1:6]
+                group1 = line[7:11]
+                group2 = line[11:16]
+                group3 = line[16:21]
+                group4 = line[21:25]
+                group5 = line[25:32]
+                output_file.write(validbit + ' ' + opcode + ' ' + group1 + ' ' + group2 + ' ' + group3 + ' ' + group4
+                                  + ' ' + group5 + ' ' + str(memory_location))
+                if int(validbit) is 0:
+                    output_file.write(" Invalid Instruction")
+                else:
+                    if int(opcode, 2) is 0:
+                        rs = registers[int(group1, 2)]
+                        rt = registers[int(group2, 2)]
+                        rd = registers[int(group3, 2)]
+                        sa = int(group4, 2)
+                        funct = int(group5, 2)
+                        function_name = functionCodes[funct]['name']
+                        subtype = functionCodes[funct]['subType']
+                        if subtype is 0:
+                            if rd is 0 and rt is 0:
+                                output_file.write(' ' + "NOP")
+                            else:
+                                output_file.write(' ' + function_name + ' ' + rd + ', ' + rt + ', #' + str(sa))
+                        if subtype is 1:
+                            output_file.write(' ' + function_name + ' ' + rs)
+                        if subtype is 2:
+                            output_file.write(' ' + function_name + ' ' + rd + ', ' + rs + ', ' + rt)
+                        if subtype is 3:
+                            output_file.write(' ' + function_name)
+                        if function_name is "BREAK":
+                            break_found = True
                     else:
-                        sys.stdout.write(' ' + functionname + ' ' + rd + ', ' + rt + ', #' + str(sa))
-                if subtype is 1:
-                    sys.stdout.write(' ' + functionname + ' ' + rs)
-                if subtype is 2:
-                    sys.stdout.write(' ' + functionname + ' ' + rd + ', ' + rs + ', ' + rt)
-                if subtype is 3:
-                    sys.stdout.write(' ' + functionname)
-                if functionname is "BREAK":
-                    breakFound = True
+                        funct = int(opcode, 2)
+                        function_name = opcodes[funct]['name']
+                        output_file.write(' ' + function_name)
             else:
-                function = int(opcode, 2)
-                functionname = opcodes[function]['name']
-                sys.stdout.write(' ' + functionname)
-    else:
-        sys.stdout.write(line[0:32])
-        sys.stdout.write(' ' + str(twos_comp(int(line[0:32], 2), len(line[0:32]))))
-    sys.stdout.write("\n")
-    sys.stdout.flush()
-    memoryLocation += 4
+                output_file.write(line[0:32])
+                output_file.write(' ' + str(self.twos_comp(int(line[0:32], 2), len(line[0:32]))))
+            output_file.write("\n")
+            output_file.flush()
+            memory_location += 4
 
-inputFile.close()
+        input_file.close()
+        output_file.close()
+
+# method used to compute the 2's compliment
+    def twos_comp(self, number, bitlength):
+        if (number & (1 << (bitlength - 1))) != 0:
+            number = number - (1 << bitlength)
+        return number
+
+
+# driver for program
+def run():
+    dissasembler1 = Dissasembler()
+    dissasembler1.dirty_work("test1_bin.txt")
+    return
+
+
+run()
