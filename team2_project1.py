@@ -84,7 +84,7 @@ class Dissasembler(object):
                 group4 = line[21:26]
                 group5 = line[26:32]
                 output_file.write(validbit + ' ' + opcode + ' ' + group1 + ' ' + group2 + ' ' + group3 + ' ' + group4
-                                  + ' %s \t %s \t ' % (group5, str(memory_location))) #space output
+                                  + '%s\t%s\t' % (group5, str(memory_location))) #space output
                 if int(validbit) is 0:#check for invalid instruction
                     output_file.write("Invalid Instruction")
                 else:
@@ -145,7 +145,7 @@ class Dissasembler(object):
                             output_file.write('\t' + rt + ', ' + rs + ', #' + str(immediate))
             else:#Output after Break
                 output_file.write('%s' % (line[0:32]))
-                output_file.write(' \t %s \t %s' % (str(memory_location), str(self.twos_comp(int(line[0:32], 2), len(line[0:32])))))
+                output_file.write('\t%s\t%s' % (str(memory_location), str(self.twos_comp(int(line[0:32], 2), len(line[0:32])))))
             output_file.write("\n")
             memory_location += 4 # iterate memory location
         #close out files
