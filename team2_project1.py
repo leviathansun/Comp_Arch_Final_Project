@@ -84,7 +84,7 @@ class Dissasembler(object):
                 group4 = line[21:26]
                 group5 = line[26:32]
                 output_file.write(validbit + ' ' + opcode + ' ' + group1 + ' ' + group2 + ' ' + group3 + ' ' + group4
-                                  + ' %-8s%-8s' % (group5, str(memory_location))) #space output
+                                  + ' %-4s \t %-8s \t ' % (group5, str(memory_location))) #space output
                 if int(validbit) is 0:#check for invalid instruction
                     output_file.write("Invalid Instruction")
                 else:
@@ -101,13 +101,13 @@ class Dissasembler(object):
                                 output_file.write('%-7s' % ('NOP'))
                             else:
                                 output_file.write('%-7s' % (function_name))
-                                output_file.write(' ' + rd + ', ' + rt + ', #' + str(sa))
+                                output_file.write('\t' + rd + ', ' + rt + ', #' + str(sa))
                         if subtype is 1:
                             output_file.write('%-7s' % (function_name))
-                            output_file.write(' ' + rs)
+                            output_file.write('\t' + rs)
                         if subtype is 2:
                             output_file.write('%-7s' % (function_name))
-                            output_file.write(' ' + rd + ', ' + rs + ', ' + rt)
+                            output_file.write('\t' + rd + ', ' + rs + ', ' + rt)
                         if subtype is 3:
                             output_file.write('%-7s' % (function_name))
                         if function_name is "BREAK":
@@ -119,33 +119,33 @@ class Dissasembler(object):
                         if subtype is 4:
                             jumpCode = int(line[6:32], 2)*4
                             output_file.write('%-7s' % (function_name))
-                            output_file.write(' #' + str(jumpCode))
+                            output_file.write('\t#' + str(jumpCode))
                         if subtype is 5:
                             rs = registers[int(group1, 2)]
                             rt = registers[int(group2, 2)]
                             offset = int(line[16:32], 2)
                             output_file.write('%-7s' % (function_name))
-                            output_file.write(' ' + rt + ', ' + str(offset) + '(' + rs + ')')
+                            output_file.write('\t' + rt + ', ' + str(offset) + '(' + rs + ')')
                         if subtype is 6:
                             rs = registers[int(group1, 2)]
                             offset = int(line[16:32], 2)*4
                             output_file.write('%-7s' % (function_name))
-                            output_file.write(' ' + rs + ', #' + str(offset))
+                            output_file.write('\t' + rs + ', #' + str(offset))
                         if subtype is 7:
                             rs = registers[int(group1, 2)]
                             rt = registers[int(group2, 2)]
                             rd = registers[int(group3, 2)]
                             output_file.write('%-7s' % (function_name))
-                            output_file.write(' ' + rd + ', ' + rs + ', ' + rt)
+                            output_file.write('\t' + rd + ', ' + rs + ', ' + rt)
                         if subtype is 8:
                             rs = registers[int(group1, 2)]
                             rt = registers[int(group2, 2)]
                             immediate = str(self.twos_comp(int(line[16:32], 2), len(line[16:32])))
                             output_file.write('%-7s' % (function_name))
-                            output_file.write(' ' + rt + ', ' + rs + ', #' + str(immediate))
+                            output_file.write('\t' + rt + ', ' + rs + ', #' + str(immediate))
             else:#Output after Break
-                output_file.write('%-40s' % (line[0:32]))
-                output_file.write('%-8s%s' % (str(memory_location), str(self.twos_comp(int(line[0:32], 2), len(line[0:32])))))
+                output_file.write('%-37s' % (line[0:32]))
+                output_file.write(' \t %-4s \t %-8s' % (str(memory_location), str(self.twos_comp(int(line[0:32], 2), len(line[0:32])))))
             output_file.write("\n")
             memory_location += 4 # iterate memory location
         #close out files
