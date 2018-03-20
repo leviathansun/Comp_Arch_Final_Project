@@ -84,7 +84,7 @@ class Dissasembler(object):
                 group4 = line[21:26]
                 group5 = line[26:32]
                 output_file.write(validbit + ' ' + opcode + ' ' + group1 + ' ' + group2 + ' ' + group3 + ' ' + group4
-                                  + '%s\t%s\t' % (group5, str(memory_location))) #space output
+                                  + ' ' + group5 + '\t' + str(memory_location) + '\t') #space output
                 if int(validbit) is 0:#check for invalid instruction
                     output_file.write("Invalid Instruction")
                 else:
@@ -97,7 +97,7 @@ class Dissasembler(object):
                         function_name = functionCodes[funct]['name']
                         subtype = functionCodes[funct]['subType']
                         if subtype is 0:
-                            if rd is 0 and rt is 0:
+                            if (rd == registers[0]) and (rt == registers[0]):
                                 output_file.write('%s' % ('NOP'))
                             else:
                                 output_file.write('%s' % (function_name))
@@ -113,39 +113,40 @@ class Dissasembler(object):
                         if function_name is "BREAK":
                             break_found = True
                     else:#not R type instructions
-                        funct = int(opcode, 2)
-                        function_name = opcodes[funct]['name']
-                        subtype = opcodes[funct]['subType']
-                        if subtype is 4:
-                            jumpCode = int(line[6:32], 2)*4
-                            output_file.write('%s' % (function_name))
-                            output_file.write('\t#' + str(jumpCode))
-                        if subtype is 5:
-                            rs = registers[int(group1, 2)]
-                            rt = registers[int(group2, 2)]
-                            offset = int(line[16:32], 2)
-                            output_file.write('%s' % (function_name))
-                            output_file.write('\t' + rt + ', ' + str(offset) + '(' + rs + ')')
-                        if subtype is 6:
-                            rs = registers[int(group1, 2)]
-                            offset = int(line[16:32], 2)*4
-                            output_file.write('%s' % (function_name))
-                            output_file.write('\t' + rs + ', #' + str(offset))
-                        if subtype is 7:
-                            rs = registers[int(group1, 2)]
-                            rt = registers[int(group2, 2)]
-                            rd = registers[int(group3, 2)]
-                            output_file.write('%s' % (function_name))
-                            output_file.write('\t' + rd + ', ' + rs + ', ' + rt)
-                        if subtype is 8:
-                            rs = registers[int(group1, 2)]
-                            rt = registers[int(group2, 2)]
-                            immediate = str(self.twos_comp(int(line[16:32], 2), len(line[16:32])))
-                            output_file.write('%s' % (function_name))
-                            output_file.write('\t' + rt + ', ' + rs + ', #' + str(immediate))
+                        if (int(opcode, 2) in opcodes) == True:
+                            funct = int(opcode, 2)
+                            function_name = opcodes[funct]['name']
+                            subtype = opcodes[funct]['subType']
+                            if subtype is 4:
+                                jumpCode = int(line[6:32], 2)*4
+                                output_file.write('%s' % (function_name))
+                                output_file.write('\t#' + str(jumpCode))
+                            if subtype is 5:
+                                rs = registers[int(group1, 2)]
+                                rt = registers[int(group2, 2)]
+                                offset = int(line[16:32], 2)*4
+                                output_file.write('%s' % (function_name))
+                                output_file.write('\t' + rs + ', ' + rt + ', #' + str(offset))
+                            if subtype is 6:
+                                rs = registers[int(group1, 2)]
+                                offset = int(line[16:32], 2)*4
+                                output_file.write('%s' % (function_name))
+                                output_file.write('\t' + rs + ', #' + str(offset))
+                            if subtype is 7:
+                                rs = registers[int(group1, 2)]
+                                rt = registers[int(group2, 2)]
+                                rd = registers[int(group3, 2)]
+                                output_file.write('%s' % (function_name))
+                                output_file.write('\t' + rd + ', ' + rs + ', ' + rt)
+                            if subtype is 8:
+                                rs = registers[int(group1, 2)]
+                                rt = registers[int(group2, 2)]
+                                immediate = str(self.twos_comp(int(line[16:32], 2), len(line[16:32])))
+                                output_file.write('%s' % (function_name))
+                                output_file.write('\t' + rt + ', ' + rs + ', #' + str(immediate))
             else:#Output after Break
                 output_file.write('%s' % (line[0:32]))
-                output_file.write('\t%s\t%s' % (str(memory_location), str(self.twos_comp(int(line[0:32], 2), len(line[0:32])))))
+                output_file.write('\t' + (str(memory_location) + '\t' + str(self.twos_comp(int(line[0:32], 2), len(line[0:32])))))
             output_file.write("\n")
             memory_location += 4 # iterate memory location
         #close out files
