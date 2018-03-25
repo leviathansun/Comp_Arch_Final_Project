@@ -61,6 +61,130 @@ registers = {
     31: "R31",
 }
 
+class simulator(object):
+    #initializer / instance attributes
+    def _init_(selfself):
+        pass
+
+    #method that runs the Simulator
+    def tycoon(self, opcode, subtype, function_name):
+        memspace1 = memspace()
+        output_file2 = open ("team2_out_sim.txt", "w")
+
+
+    def SWsim(self):
+        pass
+
+    def LWsim(self):
+        pass
+
+    def SLLsim(self):
+        pass
+
+    def SRLsim(self):
+        pass
+
+    def MULsim(self):
+        pass
+
+    def ANDsim(self):
+        pass
+
+    def ORsim(self):
+        pass
+
+    def XORsim(self):
+        pass
+
+    def MOVsim(self):
+        pass
+
+    def NOPsim(self):
+        pass
+
+    def BNEsim(self):
+        pass
+
+    def BLEZsim(self):
+        pass
+
+    def Jsim(self):
+        pass
+
+    def JRsim(self):
+        pass
+
+    def SUBsim(self):
+        pass
+
+    def BREAKsim(self):
+        pass
+
+    def ADDsim(self):
+        pass
+
+    def Rsim(self):
+        pass
+
+
+class memspace(object):
+    def _init_(self):
+        pass
+
+    def SWmem(self):
+        pass
+
+    def LWmem(self):
+        pass
+
+    def SLLmem(self):
+        pass
+
+    def SRLmem(self):
+        pass
+
+    def MULmem(self):
+        pass
+
+    def ANDmem(self):
+        pass
+
+    def ORmem(self):
+        pass
+
+    def XORmem(self):
+        pass
+
+    def MOVmem(self):
+        pass
+
+    def NOPmem(self):
+        pass
+
+    def BNEmem(self):
+        pass
+
+    def BLEZmem(self):
+        pass
+
+    def Jmem(self):
+        pass
+
+    def JRmem(self):
+        pass
+
+    def SUBmem(self):
+        pass
+
+    def BREAKmem(self):
+        pass
+
+    def ADDmem(self):
+        pass
+
+    def Rmem(self):
+        pass
+
 
 class Dissasembler(object):
     # initializer / instance attributes
@@ -71,6 +195,7 @@ class Dissasembler(object):
     def dirty_work(self, input_name, output_name):
         input_file = open(input_name, "r")
         output_file = open(output_name, "w")
+        simulator1 = simulator()
 
         memory_location = 96
         break_found = False
@@ -96,6 +221,7 @@ class Dissasembler(object):
                         funct = int(group5, 2)
                         function_name = functionCodes[funct]['name']
                         subtype = functionCodes[funct]['subType']
+                        simulator1.tycoon(opcode, subtype, function_name)
                         if subtype is 0:
                             if (rd == registers[0]) and (rt == registers[0]):
                                 output_file.write('%s' % ('NOP'))
