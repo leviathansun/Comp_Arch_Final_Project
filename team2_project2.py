@@ -26,40 +26,40 @@ functionCodes[37] = {'name': "OR", 'subType': 2}
 functionCodes[38] = {'name': "XOR", 'subType': 2}
 
 #list of all registers
-registers = {
-    0: "R0",
-    1: "R1",
-    2: "R2",
-    3: "R3",
-    4: "R4",
-    5: "R5",
-    6: "R6",
-    7: "R7",
-    8: "R8",
-    9: "R9",
-    10: "R10",
-    11: "R11",
-    12: "R12",
-    13: "R13",
-    14: "R14",
-    15: "R15",
-    16: "R16",
-    17: "R17",
-    18: "R18",
-    19: "R19",
-    20: "R20",
-    21: "R21",
-    22: "R22",
-    23: "R23",
-    24: "R24",
-    25: "R25",
-    26: "R26",
-    27: "R27",
-    28: "R28",
-    29: "R29",
-    30: "R30",
-    31: "R31",
-}
+registers = {}
+registers[0] = {'name': "RO", 'data': 0}
+registers[1] = {'name': "R1", 'data': 0}
+registers[2] = {'name': "R2", 'data': 0}
+registers[3] = {'name': "R3", 'data': 0}
+registers[4] = {'name': "R4", 'data': 0}
+registers[5] = {'name': "R5", 'data': 0}
+registers[6] = {'name': "R6", 'data': 0}
+registers[7] = {'name': "R7", 'data': 0}
+registers[8] = {'name': "R8", 'data': 0}
+registers[9] = {'name': "R9", 'data': 0}
+registers[10] = {'name': "R1O", 'data': 0}
+registers[11] = {'name': "R11", 'data': 0}
+registers[12] = {'name': "R12", 'data': 0}
+registers[13] = {'name': "R13", 'data': 0}
+registers[14] = {'name': "R14", 'data': 0}
+registers[15] = {'name': "R15", 'data': 0}
+registers[16] = {'name': "R16", 'data': 0}
+registers[17] = {'name': "R17", 'data': 0}
+registers[18] = {'name': "R18", 'data': 0}
+registers[19] = {'name': "R19", 'data': 0}
+registers[20] = {'name': "R2O", 'data': 0}
+registers[21] = {'name': "R21", 'data': 0}
+registers[22] = {'name': "R22", 'data': 0}
+registers[23] = {'name': "R23", 'data': 0}
+registers[24] = {'name': "R24", 'data': 0}
+registers[25] = {'name': "R25", 'data': 0}
+registers[26] = {'name': "R26", 'data': 0}
+registers[27] = {'name': "R27", 'data': 0}
+registers[28] = {'name': "R28", 'data': 0}
+registers[29] = {'name': "R29", 'data': 0}
+registers[30] = {'name': "R3O", 'data': 0}
+registers[31] = {'name': "R31", 'data': 0}
+
 
 class simulator(object):
     #initializer / instance attributes
@@ -195,7 +195,6 @@ class Dissasembler(object):
     def dirty_work(self, input_name, output_name):
         input_file = open(input_name, "r")
         output_file = open(output_name, "w")
-        simulator1 = simulator()
 
         memory_location = 96
         break_found = False
@@ -214,16 +213,15 @@ class Dissasembler(object):
                     output_file.write("Invalid Instruction")
                 else:
                     if int(opcode, 2) is 0:#Check for R type and use function code
-                        rs = registers[int(group1, 2)]
-                        rt = registers[int(group2, 2)]
-                        rd = registers[int(group3, 2)]
+                        rs = registers[int(group1, 2)]['name']
+                        rt = registers[int(group2, 2)]['name']
+                        rd = registers[int(group3, 2)]['name']
                         sa = int(group4, 2)
                         funct = int(group5, 2)
                         function_name = functionCodes[funct]['name']
                         subtype = functionCodes[funct]['subType']
-                        simulator1.tycoon(opcode, subtype, function_name)
                         if subtype is 0:
-                            if (rd == registers[0]) and (rt == registers[0]):
+                            if (rd == registers[0]['name']) and (rt == registers[0]['name']):
                                 output_file.write('%s' % ('NOP'))
                             else:
                                 output_file.write('%s' % (function_name))
@@ -248,25 +246,25 @@ class Dissasembler(object):
                                 output_file.write('%s' % (function_name))
                                 output_file.write('\t#' + str(jumpCode))
                             if subtype is 5:
-                                rs = registers[int(group1, 2)]
-                                rt = registers[int(group2, 2)]
+                                rs = registers[int(group1, 2)]['name']
+                                rt = registers[int(group2, 2)]['name']
                                 offset = int(line[16:32], 2)*4
                                 output_file.write('%s' % (function_name))
                                 output_file.write('\t' + rs + ', ' + rt + ', #' + str(offset))
                             if subtype is 6:
-                                rs = registers[int(group1, 2)]
+                                rs = registers[int(group1, 2)]['name']
                                 offset = int(line[16:32], 2)*4
                                 output_file.write('%s' % (function_name))
                                 output_file.write('\t' + rs + ', #' + str(offset))
                             if subtype is 7:
-                                rs = registers[int(group1, 2)]
-                                rt = registers[int(group2, 2)]
-                                rd = registers[int(group3, 2)]
+                                rs = registers[int(group1, 2)]['name']
+                                rt = registers[int(group2, 2)]['name']
+                                rd = registers[int(group3, 2)]['name']
                                 output_file.write('%s' % (function_name))
                                 output_file.write('\t' + rd + ', ' + rs + ', ' + rt)
                             if subtype is 8:
-                                rs = registers[int(group1, 2)]
-                                rt = registers[int(group2, 2)]
+                                rs = registers[int(group1, 2)]['name']
+                                rt = registers[int(group2, 2)]['name']
                                 immediate = str(self.twos_comp(int(line[16:32], 2), len(line[16:32])))
                                 output_file.write('%s' % (function_name))
                                 output_file.write('\t' + rt + ', ' + rs + ', #' + str(immediate))
@@ -298,7 +296,7 @@ def run():
             outputfilename = sys.argv[i + 1]
             outputfilename = outputfilename + "_dis.txt"
     if not inputfilename:#default file names if not given
-        inputfilename = "test1_bin.txt"
+        inputfilename = "test2_bin.txt"
     if not outputfilename:
         outputfilename = "team2_out_dis.txt"
     dissasembler1.dirty_work(inputfilename, outputfilename)
