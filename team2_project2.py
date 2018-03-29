@@ -300,7 +300,11 @@ class Dissasembler(object):
         input_file.close()
         output_file.close()
 
-        print(assembledlist)
+        #debug list
+        #for i in range(len(assembledlist)):
+        #    for j in range(len(assembledlist[i])):
+         #       print(assembledlist[i][j])
+          #  print("\n")
 
     # method used to compute the 2's compliment
     def twos_comp(self, number, bitlength):
