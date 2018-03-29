@@ -62,8 +62,9 @@ registers[31] = {'name': "R31", 'data': 0}
 
 
 class simulator(object):
+
     #initializer / instance attributes
-    def _init_(selfself):
+    def _init_(self):
         pass
 
     #method that runs the Simulator
