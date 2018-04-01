@@ -86,21 +86,50 @@ class simulator(object):
         while self.break_found is False:
             cycle = cycle + 1
             output_file2.write("=====================\n")
-            # print(self.pc)
-            output_file2.write("cycle:" + str(cycle) + "\t" + str(self.pc + 96) # + "\t" + str(assembledlist[self.pc][0])
-                               + "\t" + " ".join(assembledlist[self.pc]) + "\n")
+            output_file2.write("cycle:" + str(cycle) + " " + str(self.pc + 96) + "\t")
+
             self.choose(memspace1)
             self.pc = self.pc + 1
 
     # method that selects which instruction is being called
     def choose(self, memspace1):
-        # print(assembledlist[self.pc][0])
-
         if assembledlist[self.pc][0] is 'SLL':
             memspace1.SLLmem()
         if assembledlist[self.pc][0] is 'BREAK':
             memspace1.BREAKmem()
             self.break_found = True
+        if assembledlist[self.pc][0] is 'R':
+            memspace1.Rmem()
+        if assembledlist[self.pc][0] is 'J':
+            memspace1.Jmem()
+        if assembledlist[self.pc][0] is 'BNE':
+            memspace1.BNEmem()
+        if assembledlist[self.pc][0] is 'BLEZ':
+            memspace1.BLEZmem()
+        if assembledlist[self.pc][0] is 'BREAK':
+            memspace1.BREAKmem()
+        if assembledlist[self.pc][0] is 'ADDI':
+            memspace1.ADDImem()
+        if assembledlist[self.pc][0] is 'MUL':
+            memspace1.MULmem()
+        if assembledlist[self.pc][0] is 'LW':
+            memspace1.LWmem()
+        if assembledlist[self.pc][0] is 'SW':
+            memspace1.SWmem()
+        if assembledlist[self.pc][0] is 'SRL':
+            memspace1.SRLmem()
+        if assembledlist[self.pc][0] is 'JR':
+            memspace1.JRmem()
+        if assembledlist[self.pc][0] is 'MOVZ':
+            memspace1.MOVZmem()
+        if assembledlist[self.pc][0] is 'ADD':
+            memspace1.ADDmem()
+        if assembledlist[self.pc][0] is 'SUB':
+            memspace1.SUBmem()
+        if assembledlist[self.pc][0] is 'OR':
+            memspace1.ORmem()
+        if assembledlist[self.pc][0] is 'XOR':
+            memspace1.XORmem()
 
     def SWsim(self):
         pass
@@ -211,6 +240,9 @@ class memspace(object):
         pass
 
     def ADDmem(self):
+        pass
+
+    def ADDImem(self):
         pass
 
     def Rmem(self):
