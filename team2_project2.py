@@ -62,17 +62,44 @@ registers[31] = {'name': "R31", 'data': 0}
 
 assembledlist = []
 
-class simulator(object):
 
-    #initializer / instance attributes
+class simulator(object):
+    pc = 0
+    break_found = False
+
+    # initializer / instance attributes
     def _init_(self):
         pass
 
-    #method that runs the Simulator
-    def tycoon(self, opcode, subtype, function_name):
+    # method that runs the Simulator
+    def tycoon(self):
         memspace1 = memspace()
         output_file2 = open ("team2_out_sim.txt", "w")
+        cycle = 0
+        self.pc = 0
+        self.break_found = False
 
+        if not assembledlist:
+            output_file2.write("no input")
+            return
+
+        while self.break_found is False:
+            cycle = cycle + 1
+            output_file2.write("=====================\n")
+            # print(self.pc)
+            output_file2.write("cycle:" + str(cycle) + "\t" + str(self.pc + 96) + str(assembledlist[self.pc]) + "\n")
+            self.choose(memspace1)
+            self.pc = self.pc + 1
+
+    # method that selects which instruction is being called
+    def choose(self, memspace1):
+        # print(assembledlist[self.pc][0])
+
+        if assembledlist[self.pc][0] is 'SLL':
+            memspace1.SLLmem()
+        if assembledlist[self.pc][0] is 'BREAK':
+            memspace1.BREAKmem()
+            self.break_found = True
 
     def SWsim(self):
         pass
@@ -140,6 +167,7 @@ class memspace(object):
         pass
 
     def SLLmem(self):
+        print("in SLLmem")
         pass
 
     def SRLmem(self):
@@ -197,7 +225,7 @@ class Dissasembler(object):
     def dirty_work(self, input_name, output_name):
         input_file = open(input_name, "r")
         output_file = open(output_name, "w")
-        linecount = 0;
+        counter = 0
 
         memory_location = 96
         break_found = False
@@ -227,22 +255,22 @@ class Dissasembler(object):
                             if (rd == registers[0]['name']) and (rt == registers[0]['name']):
                                 output_file.write('%s' % ('NOP'))
 
-                                assembledlist.append(['NOP'])
+                                assembledlist[counter].append(['NOP'])
                             else:
                                 output_file.write('%s' % (function_name))
                                 output_file.write('\t' + rd + ' ' + rt + ' ' + str(sa))
 
-                                assembledlist.append([function_name + ' ' + rd + ' ' + rt + ' ' + str(sa)])
+                                assembledlist.append([function_name] + [rd] + [rt] + [str(sa)])
                         if subtype is 1:
                             output_file.write('%s' % (function_name))
                             output_file.write('\t' + rs)
 
-                            assembledlist.append([function_name + ' ' + rs])
+                            assembledlist.append([function_name] + [rs])
                         if subtype is 2:
                             output_file.write('%s' % (function_name))
                             output_file.write('\t' + rd + ', ' + rs + ', ' + rt)
 
-                            assembledlist.append([function_name + ' ' + rd + ' ' + rs + ' ' + rt])
+                            assembledlist.append([function_name] + [rd] + [rs] + [rt])
                         if subtype is 3:
                             output_file.write('%s' % (function_name))
 
@@ -259,7 +287,7 @@ class Dissasembler(object):
                                 output_file.write('%s' % (function_name))
                                 output_file.write('\t#' + str(jumpCode))
 
-                                assembledlist.append([function_name + ' ' + str(jumpCode)])
+                                assembledlist.append([function_name] + [str(jumpCode)])
                             if subtype is 5:
                                 rs = registers[int(group1, 2)]['name']
                                 rt = registers[int(group2, 2)]['name']
@@ -267,14 +295,14 @@ class Dissasembler(object):
                                 output_file.write('%s' % (function_name))
                                 output_file.write('\t' + rs + ', ' + rt + ', #' + str(offset))
 
-                                assembledlist.append([function_name + ' ' + rs + ' ' + rt + ' ' + str(offset)])
+                                assembledlist.append([function_name] + [rs] + [rt] + [str(offset)])
                             if subtype is 6:
                                 rs = registers[int(group1, 2)]['name']
                                 offset = int(line[16:32], 2)*4
                                 output_file.write('%s' % (function_name))
                                 output_file.write('\t' + rs + ', #' + str(offset))
 
-                                assembledlist.append([function_name + ' ' + rs + ' ' + str(offset)])
+                                assembledlist.append([function_name] + [rs] + [str(offset)])
                             if subtype is 7:
                                 rs = registers[int(group1, 2)]['name']
                                 rt = registers[int(group2, 2)]['name']
@@ -282,7 +310,7 @@ class Dissasembler(object):
                                 output_file.write('%s' % (function_name))
                                 output_file.write('\t' + rd + ', ' + rs + ', ' + rt)
 
-                                assembledlist.append([function_name + ' ' + rd + ' ' + rs + ' ' + rt])
+                                assembledlist.append([function_name] + [rd] + [rs] + [rt])
                             if subtype is 8:
                                 rs = registers[int(group1, 2)]['name']
                                 rt = registers[int(group2, 2)]['name']
@@ -290,21 +318,22 @@ class Dissasembler(object):
                                 output_file.write('%s' % (function_name))
                                 output_file.write('\t' + rt + ', ' + rs + ', #' + str(immediate))
 
-                                assembledlist.append([function_name + ' ' + rt + ' ' + rs + ' ' + str(immediate)])
+                                assembledlist.append([function_name] + [rt] + [rs] + [str(immediate)])
             else:#Output after Break
                 output_file.write('%s' % (line[0:32]))
                 output_file.write('\t' + (str(memory_location) + '\t' + str(self.twos_comp(int(line[0:32], 2), len(line[0:32])))))
             output_file.write("\n")
             memory_location += 4 # iterate memory location
+            counter += 1
+
         #close out files
         input_file.close()
         output_file.close()
 
         #debug list
         #for i in range(len(assembledlist)):
-        #    for j in range(len(assembledlist[i])):
-         #       print(assembledlist[i][j])
-          #  print("\n")
+         #   for j in range(len(assembledlist[i])):
+          #     print(assembledlist[i][j])
 
     # method used to compute the 2's compliment
     def twos_comp(self, number, bitlength):
@@ -316,6 +345,7 @@ class Dissasembler(object):
 # driver for program
 def run():
     dissasembler1 = Dissasembler()
+    simulator1 = simulator()
     inputfilename = ""
     outputfilename = ""
     for i in range(len(sys.argv)):
@@ -329,6 +359,8 @@ def run():
     if not outputfilename:
         outputfilename = "team2_out_dis.txt"
     dissasembler1.dirty_work(inputfilename, outputfilename)
+
+    simulator1.tycoon()
 
     return
 
