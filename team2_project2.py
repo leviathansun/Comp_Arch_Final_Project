@@ -87,7 +87,8 @@ class simulator(object):
             cycle = cycle + 1
             output_file2.write("=====================\n")
             # print(self.pc)
-            output_file2.write("cycle:" + str(cycle) + "\t" + str(self.pc + 96) + str(assembledlist[self.pc]) + "\n")
+            output_file2.write("cycle:" + str(cycle) + "\t" + str(self.pc + 96) # + "\t" + str(assembledlist[self.pc][0])
+                               + "\t" + " ".join(assembledlist[self.pc]) + "\n")
             self.choose(memspace1)
             self.pc = self.pc + 1
 
