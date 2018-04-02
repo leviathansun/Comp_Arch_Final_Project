@@ -27,7 +27,7 @@ functionCodes[38] = {'name': "XOR", 'subType': 2}
 
 #list of all registers
 registers = {}
-registers[0] = {'name': "RO", 'data': 0}
+registers[0] = {'name': "R0", 'data': 0}
 registers[1] = {'name': "R1", 'data': 0}
 registers[2] = {'name': "R2", 'data': 0}
 registers[3] = {'name': "R3", 'data': 0}
@@ -61,11 +61,13 @@ registers[30] = {'name': "R3O", 'data': 0}
 registers[31] = {'name': "R31", 'data': 0}
 
 assembledlist = []
+datalist = []
 
 
 class simulator(object):
     pc = 0
     break_found = False
+    output_file2= 0
 
     # initializer / instance attributes
     def _init_(self):
@@ -74,7 +76,8 @@ class simulator(object):
     # method that runs the Simulator
     def tycoon(self):
         memspace1 = memspace()
-        output_file2 = open ("team2_out_sim.txt", "w")
+        out_file = open ("team2_out_sim.txt", "w")
+        self.output_file2 = out_file
         cycle = 0
         self.pc = 0
         self.break_found = False
@@ -85,51 +88,102 @@ class simulator(object):
 
         while self.break_found is False:
             cycle = cycle + 1
-            output_file2.write("=====================\n")
-            output_file2.write("cycle:" + str(cycle) + " " + str(self.pc + 96) + "\t")
+            self.output_file2.write("=====================\n")
+            self.output_file2.write("cycle:" + str(cycle) + " " + str((self.pc * 4) + 96) + "\t")
 
             self.choose(memspace1)
+            self.regout()
             self.pc = self.pc + 1
+
+        self.output_file2.close()
+
+    # method that creates register output
+    def regout(self):
+        self.output_file2.write('\nR00:\t' + str(registers[0]['data']) + '\t' + str(registers[1]['data']) + '\t'
+                                + str(registers[2]['data']) + '\t' + str(registers[3]['data']) + '\t'
+                                + str(registers[4]['data']) + '\t' + str(registers[5]['data']) + '\t'
+                                + str(registers[6]['data']) + '\t' + str(registers[7]['data']) + '\n')
+        self.output_file2.write('R08:\t' + str(registers[8]['data']) + '\t' + str(registers[9]['data']) + '\t'
+                                + str(registers[10]['data']) + '\t' + str(registers[11]['data']) + '\t'
+                                + str(registers[12]['data']) + '\t' + str(registers[13]['data']) + '\t'
+                                + str(registers[14]['data']) + '\t' + str(registers[15]['data']) + '\n')
+        self.output_file2.write('R16:\t' + str(registers[16]['data']) + '\t' + str(registers[17]['data']) + '\t'
+                                + str(registers[18]['data']) + '\t' + str(registers[19]['data']) + '\t'
+                                + str(registers[20]['data']) + '\t' + str(registers[21]['data']) + '\t'
+                                + str(registers[22]['data']) + '\t' + str(registers[23]['data']) + '\n')
+        self.output_file2.write('R24:\t' + str(registers[24]['data']) + '\t' + str(registers[25]['data']) + '\t'
+                                + str(registers[26]['data']) + '\t' + str(registers[27]['data']) + '\t'
+                                + str(registers[28]['data']) + '\t' + str(registers[29]['data']) + '\t'
+                                + str(registers[30]['data']) + '\t' + str(registers[31]['data']) + '\n')
+
+        self.output_file2.write('\nData:\n')
+        self.output_file2.write(str(datalist[0][0]) + ':\t' + str(datalist[0][1]) + '\t' + str(datalist[1][1]) + '\t'
+                                + str(datalist[2][1]) + '\t' + str(datalist[3][1]) + '\t'
+                                + str(datalist[4][1]) + '\t' + str(datalist[5][1]) + '\t'
+                                + str(datalist[6][1]) + '\t' + str(datalist[7][1]) + '\n')
+        self.output_file2.write(str(datalist[8][0]) + ':\t' + str(datalist[8][1]) + '\t' + str(datalist[9][1]) + '\t'
+                                + str(datalist[10][1]) + '\t' + str(datalist[11][1]) + '\t'
+                                + str(datalist[12][1]) + '\t' + str(datalist[13][1]) + '\t'
+                                + str(datalist[14][1]) + '\t' + str(datalist[15][1]) + '\n')
+
+
 
     # method that selects which instruction is being called
     def choose(self, memspace1):
         if assembledlist[self.pc][0] is 'SLL':
-            memspace1.SLLmem()
+            memspace1.SLLmem(self.pc)
+            self.SLLsim()
         if assembledlist[self.pc][0] is 'BREAK':
-            memspace1.BREAKmem()
+            memspace1.BREAKmem(self.pc)
+            self.BREAKsim()
             self.break_found = True
         if assembledlist[self.pc][0] is 'R':
-            memspace1.Rmem()
+            memspace1.Rmem(self.pc)
+            self.Rsim()
         if assembledlist[self.pc][0] is 'J':
-            memspace1.Jmem()
+            self.pc = ((int(assembledlist[self.pc][1]) - 96) / 4)
+            self.Jsim()
         if assembledlist[self.pc][0] is 'BNE':
-            memspace1.BNEmem()
+            memspace1.BNEmem(self.pc)
+            self.BNEsim()
         if assembledlist[self.pc][0] is 'BLEZ':
-            memspace1.BLEZmem()
-        if assembledlist[self.pc][0] is 'BREAK':
-            memspace1.BREAKmem()
+            memspace1.BLEZmem(self.pc)
+            if registers[int(assembledlist[self.pc][1][1])]['data'] <= 0:
+                self.pc = self.pc + (int(assembledlist[self.pc][2]) / 4)
+            self.BLEZsim()
         if assembledlist[self.pc][0] is 'ADDI':
-            memspace1.ADDImem()
+            memspace1.ADDImem(self.pc)
+            self.ADDIsim()
         if assembledlist[self.pc][0] is 'MUL':
-            memspace1.MULmem()
+            memspace1.MULmem(self.pc)
+            self.MULsim()
         if assembledlist[self.pc][0] is 'LW':
-            memspace1.LWmem()
+            memspace1.LWmem(self.pc)
+            self.LWsim()
         if assembledlist[self.pc][0] is 'SW':
-            memspace1.SWmem()
+            memspace1.SWmem(self.pc)
+            self.SWsim()
         if assembledlist[self.pc][0] is 'SRL':
-            memspace1.SRLmem()
+            memspace1.SRLmem(self.pc)
+            self.SRLsim()
         if assembledlist[self.pc][0] is 'JR':
-            memspace1.JRmem()
+            self.pc = (registers[int(assembledlist[self.pc][1][1])]['data'] / 4)
+            self.JRsim()
         if assembledlist[self.pc][0] is 'MOVZ':
-            memspace1.MOVZmem()
+            memspace1.MOVZmem(self.pc)
+            self.MOVZsim()
         if assembledlist[self.pc][0] is 'ADD':
-            memspace1.ADDmem()
+            memspace1.ADDmem(self.pc)
+            self.ADDsim()
         if assembledlist[self.pc][0] is 'SUB':
-            memspace1.SUBmem()
+            memspace1.SUBmem(self.pc)
+            self.SUBsim()
         if assembledlist[self.pc][0] is 'OR':
-            memspace1.ORmem()
+            memspace1.ORmem(self.pc)
+            self.ORsim()
         if assembledlist[self.pc][0] is 'XOR':
-            memspace1.XORmem()
+            memspace1.XORmem(self.pc)
+            self.XORsim()
 
     def SWsim(self):
         pass
@@ -138,10 +192,12 @@ class simulator(object):
         pass
 
     def SLLsim(self):
-        pass
+        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
+        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', #' + str(assembledlist[self.pc][3]) + '\n')
 
     def SRLsim(self):
-        pass
+        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
+        self.output_file2.write(' \t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', #' + str(assembledlist[self.pc][3]) + '\n')
 
     def MULsim(self):
         pass
@@ -182,70 +238,89 @@ class simulator(object):
     def ADDsim(self):
         pass
 
+    def ADDIsim(self):
+        pass
+
     def Rsim(self):
+        pass
+
+    def MOVZsim(self):
         pass
 
 
 class memspace(object):
-    def _init_(self):
+    def _init_(self, pc):
         pass
 
-    def SWmem(self):
+    def SWmem(self, pc):
         pass
 
-    def LWmem(self):
+    def LWmem(self, pc):
         pass
 
-    def SLLmem(self):
-        print("in SLLmem")
+    def MOVZmem(self, pc):
         pass
 
-    def SRLmem(self):
+    def SLLmem(self, pc):
+        registers[int(assembledlist[pc][1][1])]['data'] = registers[int(assembledlist[pc][2][1])]['data'] << \
+                                                                    registers[int(assembledlist[pc][3])]['data']
+
+    def SRLmem(self, pc):
+        registers[int(assembledlist[pc][1][1])]['data'] = registers[int(assembledlist[pc][2][1])]['data'] >> \
+                                                          registers[int(assembledlist[pc][3])]['data']
+
+    def MULmem(self, pc):
         pass
 
-    def MULmem(self):
+    def ANDmem(self, pc):
+        registers[int(assembledlist[pc][1][1])]['data'] = int(registers[int(assembledlist[pc][2][1])]['data']) & \
+                                                          int(registers[int(assembledlist[pc][3][1])]['data'])
+
+    def ORmem(self, pc):
+        registers[int(assembledlist[pc][1][1])]['data'] = int(registers[int(assembledlist[pc][2][1])]['data']) | \
+                                                          int(registers[int(assembledlist[pc][3][1])]['data'])
+
+    def XORmem(self, pc):
+        registers[int(assembledlist[pc][1][1])]['data'] = int(registers[int(assembledlist[pc][2][1])]['data']) ^ \
+                                                          int(registers[int(assembledlist[pc][3][1])]['data'])
+
+    def MOVmem(self, pc):
         pass
 
-    def ANDmem(self):
+    def NOPmem(self, pc):
         pass
 
-    def ORmem(self):
+    def BNEmem(self, pc):
         pass
 
-    def XORmem(self):
+    def BLEZmem(self, pc):
         pass
 
-    def MOVmem(self):
+    def Jmem(self, pc):
         pass
 
-    def NOPmem(self):
+    def JRmem(self, pc):
         pass
 
-    def BNEmem(self):
+    def SUBmem(self, pc):
+        registers[int(assembledlist[pc][1][1])]['data'] = \
+            registers[int(assembledlist[pc][2][1])]['data'] - \
+            registers[int(assembledlist[pc][3][1])]['data']
+
+    def BREAKmem(self, pc):
         pass
 
-    def BLEZmem(self):
-        pass
+    def ADDmem(self, pc):
+        registers[int(assembledlist[pc][1][1])]['data'] = \
+            registers[int(assembledlist[pc][2][1])]['data'] + \
+            registers[int(assembledlist[pc][3][1])]['data']
 
-    def Jmem(self):
-        pass
+    def ADDImem(self, pc):
+        registers[int(assembledlist[pc][1][1])]['data'] = \
+            registers[int(assembledlist[pc][2][1])]['data'] + \
+            int(assembledlist[pc][3])
 
-    def JRmem(self):
-        pass
-
-    def SUBmem(self):
-        pass
-
-    def BREAKmem(self):
-        pass
-
-    def ADDmem(self):
-        pass
-
-    def ADDImem(self):
-        pass
-
-    def Rmem(self):
+    def Rmem(self, pc):
         pass
 
 
@@ -288,7 +363,7 @@ class Dissasembler(object):
                             if (rd == registers[0]['name']) and (rt == registers[0]['name']):
                                 output_file.write('%s' % ('NOP'))
 
-                                assembledlist[counter].append(['NOP'])
+                                assembledlist.append(['NOP'])
                             else:
                                 output_file.write('%s' % (function_name))
                                 output_file.write('\t' + rd + ' ' + rt + ' ' + str(sa))
@@ -355,6 +430,7 @@ class Dissasembler(object):
             else:#Output after Break
                 output_file.write('%s' % (line[0:32]))
                 output_file.write('\t' + (str(memory_location) + '\t' + str(self.twos_comp(int(line[0:32], 2), len(line[0:32])))))
+                datalist.append([memory_location] + [self.twos_comp(int(line[0:32], 2), len(line[0:32]))])
             output_file.write("\n")
             memory_location += 4 # iterate memory location
             counter += 1
@@ -364,9 +440,9 @@ class Dissasembler(object):
         output_file.close()
 
         #debug list
-        #for i in range(len(assembledlist)):
-         #   for j in range(len(assembledlist[i])):
-          #     print(assembledlist[i][j])
+#        for i in range(len(assembledlist)):
+#            for j in range(len(assembledlist[i])):
+#               print(assembledlist[i][j])
 
     # method used to compute the 2's compliment
     def twos_comp(self, number, bitlength):
@@ -388,7 +464,7 @@ def run():
             outputfilename = sys.argv[i + 1]
             outputfilename = outputfilename + "_dis.txt"
     if not inputfilename:#default file names if not given
-        inputfilename = "test1_bin.txt"
+        inputfilename = "test2_bin.txt"
     if not outputfilename:
         outputfilename = "team2_out_dis.txt"
     dissasembler1.dirty_work(inputfilename, outputfilename)
