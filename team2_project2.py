@@ -294,7 +294,9 @@ class memspace(object):
         pass
 
     def LWmem(self, pc):
-        pass
+        if (int(assembledlist[pc][3])-96+len(assembledlist) < len(datalist)):
+            registers[int(assembledlist[pc][1][1])]['data'] = datalist[int(assembledlist[pc][3]) - 96 + len(assembledlist)]
+
 
     def MOVZmem(self, pc):
         pass
