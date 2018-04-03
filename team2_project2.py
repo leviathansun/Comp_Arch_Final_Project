@@ -90,7 +90,7 @@ class simulator(object):
             if(assembledlist[self.pc][0] is not 'NOP' ):
                 cycle = cycle + 1
                 self.output_file2.write("=====================\n")
-                self.output_file2.write("cycle:" + str(cycle) + " " + str((self.pc * 4) + 96) + "\t")
+                self.output_file2.write("cycle:" + str(cycle) + "\t" + str((self.pc * 4) + 96) + "\t")
 
                 self.choose(memspace1)
                 self.regout()
@@ -101,7 +101,8 @@ class simulator(object):
 
     # method that creates register output
     def regout(self):
-        self.output_file2.write('\nR00:\t' + str(registers[0]['data']) + '\t' + str(registers[1]['data']) + '\t'
+        self.output_file2.write('\nregisters:\n')
+        self.output_file2.write('R00:\t' + str(registers[0]['data']) + '\t' + str(registers[1]['data']) + '\t'
                                 + str(registers[2]['data']) + '\t' + str(registers[3]['data']) + '\t'
                                 + str(registers[4]['data']) + '\t' + str(registers[5]['data']) + '\t'
                                 + str(registers[6]['data']) + '\t' + str(registers[7]['data']) + '\n')
@@ -118,11 +119,11 @@ class simulator(object):
                                 + str(registers[28]['data']) + '\t' + str(registers[29]['data']) + '\t'
                                 + str(registers[30]['data']) + '\t' + str(registers[31]['data']) + '\n')
 
-        self.output_file2.write('\nData:\n')
+        self.output_file2.write('\ndata:\n')
         dataindex = 0
         while (dataindex < len(datalist)):
             if (dataindex % 8 == 0):
-                self.output_file2.write(str(datalist[dataindex][0]) + ':\t' + str(datalist[dataindex][1]) + '\t')
+                self.output_file2.write(str(datalist[dataindex][0]) + ':\t')
             if (dataindex % 8 == 7):
                 self.output_file2.write(str(datalist[dataindex][1]) + '\n')
             else:
@@ -246,7 +247,7 @@ class simulator(object):
         self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
         self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', #' + str(assembledlist[self.pc][2]) + '\n')
         if registers[int(filter(str.isdigit,assembledlist[self.pc][1]))]['data'] <= 0:
-            self.pc += ((int(assembledlist[self.pc][2])) / 4)
+            self.pc += (((int(assembledlist[self.pc][2])) / 4))
 
     def Jsim(self):
         self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
@@ -265,6 +266,7 @@ class simulator(object):
 
     def BREAKsim(self):
         self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
+        self.output_file2.write('\n')
 
     def ADDsim(self):
         self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
@@ -287,9 +289,9 @@ class memspace(object):
         pass
 
     def SWmem(self, pc):
-        regsourcedata = registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data']
+        regsourcedata = registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data']
         offset = registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data']
-        datalistindex = (int(assembledlist[pc][3]) - datalist[0][0] + regsourcedata + offset)/4 -2
+        datalistindex = (int(assembledlist[pc][3]) - datalist[0][0] + offset)/4
         while (datalistindex >= len(datalist)):
             memory_location = datalist[-1][0] + 4
             datalist.append([memory_location] + [0])
@@ -298,7 +300,7 @@ class memspace(object):
     def LWmem(self, pc):
         regsourcedata = registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data']
         offset = registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data']
-        datalistindex = (int(assembledlist[pc][3]) - datalist[0][0] + regsourcedata + offset) / 4
+        datalistindex = (int(assembledlist[pc][3]) - datalist[0][0]  + offset) / 4
         if int(datalistindex < len(datalist)):
             registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data'] = datalist[datalistindex][1]
 
@@ -332,9 +334,6 @@ class memspace(object):
     def XORmem(self, pc):
         registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data'] = int(registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data']) ^ \
                                                           int(registers[int(filter(str.isdigit,assembledlist[pc][3]))]['data'])
-
-    def MOVmem(self, pc):
-        pass
 
     def NOPmem(self, pc):
         pass
@@ -490,6 +489,7 @@ class Dissasembler(object):
 #        for i in range(len(assembledlist)):
 #            for j in range(len(assembledlist[i])):
 #               print(assembledlist[i][j])
+#            print('\n')
 
     # method used to compute the 2's compliment
     def twos_comp(self, number, bitlength):
@@ -511,7 +511,7 @@ def run():
             outputfilename = sys.argv[i + 1]
             outputfilename = outputfilename + "_dis.txt"
     if not inputfilename:#default file names if not given
-        inputfilename = "test2_bin.txt"
+        inputfilename = "test1_bin.txt"
     if not outputfilename:
         outputfilename = "team2_out_dis.txt"
     dissasembler1.dirty_work(inputfilename, outputfilename)
