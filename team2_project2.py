@@ -192,13 +192,13 @@ class simulator(object):
 
     def SWsim(self):
         self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
-        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', #' +
-                                str(assembledlist[self.pc][3]) + '\n')
+        self.output_file2.write('\t' + str(assembledlist[self.pc][2]) + ', ' +
+                                str(assembledlist[self.pc][3]) + '(' + str(assembledlist[self.pc][1]) + ')' + '\n')
 
     def LWsim(self):
         self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
-        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', #' +
-                                str(assembledlist[self.pc][3]) + '\n')
+        self.output_file2.write('\t' + str(assembledlist[self.pc][2]) + ', ' +
+                                str(assembledlist[self.pc][3]) + '(' + str(assembledlist[self.pc][1]) + ')' + '\n')
 
     def SLLsim(self):
         self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
@@ -236,7 +236,7 @@ class simulator(object):
                                 str(assembledlist[self.pc][3]) + '\n')
 
     def NOPsim(self):
-        self.output_file2.write('What were we supposed to do for %s' % (str(assembledlist[self.pc][0])))
+        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
 
     def BNEsim(self):
         self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
@@ -291,12 +291,20 @@ class memspace(object):
         pass
 
     def SWmem(self, pc):
-        pass
+        regsourcedata = registers[int(assembledlist[pc][2][1])]['data']
+        offset = registers[int(assembledlist[pc][1][1])]['data']
+        datalistindex = (int(assembledlist[pc][3]) - datalist[0][0] + regsourcedata + offset)/4 -2
+        while (datalistindex >= len(datalist)):
+            memory_location = datalist[-1][0] + 4
+            datalist.append([memory_location] + [0])
+        datalist[datalistindex][1] = registers[int(assembledlist[pc][2][1])]['data']
 
     def LWmem(self, pc):
-        if (int(assembledlist[pc][3])-96+len(assembledlist) < len(datalist)):
-            registers[int(assembledlist[pc][1][1])]['data'] = datalist[int(assembledlist[pc][3]) - 96 + len(assembledlist)]
-
+        regsourcedata = registers[int(assembledlist[pc][2][1])]['data']
+        offset = registers[int(assembledlist[pc][1][1])]['data']
+        datalistindex = (int(assembledlist[pc][3]) - datalist[0][0] + regsourcedata + offset) / 4
+        if int(datalistindex < len(datalist)):
+            registers[int(assembledlist[pc][2][1])]['data'] = datalist[datalistindex][1]
 
     def MOVZmem(self, pc):
         pass
@@ -387,6 +395,7 @@ class Dissasembler(object):
                                   + ' ' + group5 + '\t' + str(memory_location) + '\t') #space output
                 if int(validbit) is 0:#check for invalid instruction
                     output_file.write("Invalid Instruction")
+                    assembledlist.append(['NOP'])
                 else:
                     if int(opcode, 2) is 0:#Check for R type and use function code
                         rs = registers[int(group1, 2)]['name']
@@ -436,9 +445,9 @@ class Dissasembler(object):
                             if subtype is 5:
                                 rs = registers[int(group1, 2)]['name']
                                 rt = registers[int(group2, 2)]['name']
-                                offset = int(line[16:32], 2)*4
+                                offset = int(line[16:32], 2)
                                 output_file.write('%s' % (function_name))
-                                output_file.write('\t' + rs + ', ' + rt + ', #' + str(offset))
+                                output_file.write('\t' + rt + ', ' + str(offset) +"(" + rs + ')' )
 
                                 assembledlist.append([function_name] + [rs] + [rt] + [str(offset)])
                             if subtype is 6:
@@ -501,7 +510,7 @@ def run():
             outputfilename = sys.argv[i + 1]
             outputfilename = outputfilename + "_dis.txt"
     if not inputfilename:#default file names if not given
-        inputfilename = "test2_bin.txt"
+        inputfilename = "test1_bin.txt"
     if not outputfilename:
         outputfilename = "team2_out_dis.txt"
     dissasembler1.dirty_work(inputfilename, outputfilename)
