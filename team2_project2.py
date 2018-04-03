@@ -292,7 +292,8 @@ class memspace(object):
         datalistindex = (int(assembledlist[pc][3]) - datalist[0][0] + regsourcedata + offset)/4 -2
         while (datalistindex >= len(datalist)):
             memory_location = datalist[-1][0] + 4
-            datalist.append([memory_location] + [0])
+            for x in range(0, 7):
+                datalist.append([memory_location] + [0])
         datalist[datalistindex][1] = registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data']
 
     def LWmem(self, pc):
