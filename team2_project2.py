@@ -186,18 +186,24 @@ class simulator(object):
             self.XORsim()
 
     def SWsim(self):
-        pass
+        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
+        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', #' +
+                                str(assembledlist[self.pc][3]) + '\n')
 
     def LWsim(self):
-        pass
+        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
+        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', #' +
+                                str(assembledlist[self.pc][3]) + '\n')
 
     def SLLsim(self):
         self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
-        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', #' + str(assembledlist[self.pc][3]) + '\n')
+        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', #' +
+                                str(assembledlist[self.pc][3]) + '\n')
 
     def SRLsim(self):
         self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
-        self.output_file2.write(' \t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', #' + str(assembledlist[self.pc][3]) + '\n')
+        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', #' +
+                                str(assembledlist[self.pc][3]) + '\n')
 
     def MULsim(self):
         pass
@@ -239,7 +245,9 @@ class simulator(object):
         pass
 
     def ADDIsim(self):
-        pass
+        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
+        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', #' +
+                                str(assembledlist[self.pc][3]) + '\n')
 
     def Rsim(self):
         pass
@@ -366,7 +374,7 @@ class Dissasembler(object):
                                 assembledlist.append(['NOP'])
                             else:
                                 output_file.write('%s' % (function_name))
-                                output_file.write('\t' + rd + ' ' + rt + ' ' + str(sa))
+                                output_file.write('\t' + rd + ', ' + rt + ', #' + str(sa))
 
                                 assembledlist.append([function_name] + [rd] + [rt] + [str(sa)])
                         if subtype is 1:
