@@ -87,7 +87,7 @@ class simulator(object):
             return
 
         while self.break_found is False:
-            if(assembledlist[self.pc][0] is not 'NOP' ):
+            if str(assembledlist[self.pc][0]) != 'Invalid Instruction':
                 cycle = cycle + 1
                 self.output_file2.write("=====================\n")
                 self.output_file2.write("cycle:" + str(cycle) + "\t" + str((self.pc * 4) + 96) + "\t")
@@ -257,7 +257,7 @@ class simulator(object):
     def JRsim(self):
         self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
         self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + '\n')
-        self.pc = registers[int(filter(str.isdigit,assembledlist[self.pc][1]))]['data'] / 4 - 1
+        self.pc = (registers[int(filter(str.isdigit,assembledlist[self.pc][1]))]['data'] - 96) / 4 - 1
 
     def SUBsim(self):
         self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
@@ -269,12 +269,12 @@ class simulator(object):
         self.output_file2.write('\n')
 
     def ADDsim(self):
-        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
+        self.output_file2.write(assembledlist[self.pc][0])
         self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', ' +
                                 str(assembledlist[self.pc][3]) + '\n')
 
     def ADDIsim(self):
-        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
+        self.output_file2.write(assembledlist[self.pc][0])
         self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', #' +
                                 str(assembledlist[self.pc][3]) + '\n')
 
@@ -282,6 +282,9 @@ class simulator(object):
         self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
         self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', ' +
                                 str(assembledlist[self.pc][3]) + '\n')
+
+    def NOPsim(self):
+        self.output_file2.write('NOP\n')
 
 
 class memspace(object):
@@ -307,7 +310,7 @@ class memspace(object):
 
     def MOVZmem(self, pc):
         if(registers[int(filter(str.isdigit,assembledlist[pc][3]))]['data'] == 0):
-            registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data'] = registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data']
+            registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data'] = registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data']
 
     def SLLmem(self, pc):
         shifted = registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data'] << int(assembledlist[pc][3])
@@ -320,9 +323,7 @@ class memspace(object):
 
     def MULmem(self, pc):
         mulvalue = registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data'] * registers[int(filter(str.isdigit,assembledlist[pc][3]))]['data']
-        mulvalue = mulvalue % 32
         registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data'] = mulvalue
-
 
     def ANDmem(self, pc):
         registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data'] = int(registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data']) & \
@@ -396,7 +397,7 @@ class Dissasembler(object):
                                   + ' ' + group5 + '\t' + str(memory_location) + '\t') #space output
                 if int(validbit) is 0:#check for invalid instruction
                     output_file.write("Invalid Instruction")
-                    assembledlist.append(['NOP'])
+                    assembledlist.append(['Invalid Instruction'])
                 else:
                     if int(opcode, 2) is 0:#Check for R type and use function code
                         rs = registers[int(group1, 2)]['name']
