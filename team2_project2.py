@@ -95,6 +95,7 @@ class simulator(object):
             self.regout()
             self.pc = self.pc + 1
 
+        out_file.close()
         self.output_file2.close()
 
     # method that creates register output
@@ -125,7 +126,12 @@ class simulator(object):
                                 + str(datalist[10][1]) + '\t' + str(datalist[11][1]) + '\t'
                                 + str(datalist[12][1]) + '\t' + str(datalist[13][1]) + '\t'
                                 + str(datalist[14][1]) + '\t' + str(datalist[15][1]) + '\n')
+        self.output_file2.write(str(datalist[16][0]) + ':\t' + str(datalist[16][1]) + '\t' + str(datalist[17][1]) + '\t'
+                                + str(datalist[18][1]) + '\t' + str(datalist[19][1]) + '\t'
+                                + str(datalist[20][1]) + '\t' + str(datalist[21][1]) + '\t'
+                                + str(datalist[22][1]) + '\t' + str(datalist[23][1]) + '\n')
 
+        self.output_file2.write('\n')
 
 
     # method that selects which instruction is being called
@@ -133,55 +139,54 @@ class simulator(object):
         if assembledlist[self.pc][0] is 'SLL':
             memspace1.SLLmem(self.pc)
             self.SLLsim()
-        if assembledlist[self.pc][0] is 'BREAK':
+        elif assembledlist[self.pc][0] is 'BREAK':
             memspace1.BREAKmem(self.pc)
             self.BREAKsim()
             self.break_found = True
-        if assembledlist[self.pc][0] is 'R':
-            memspace1.Rmem(self.pc)
-            self.Rsim()
-        if assembledlist[self.pc][0] is 'J':
-            self.pc = ((int(assembledlist[self.pc][1]) - 96) / 4)
+        elif assembledlist[self.pc][0] is 'NOP':
+            memspace1.NOPmem(self.pc)
+            self.NOPsim()
+        elif assembledlist[self.pc][0] is 'J':
             self.Jsim()
-        if assembledlist[self.pc][0] is 'BNE':
+        elif assembledlist[self.pc][0] is 'BNE':
             memspace1.BNEmem(self.pc)
             self.BNEsim()
-        if assembledlist[self.pc][0] is 'BLEZ':
+        elif assembledlist[self.pc][0] is 'BLEZ':
             memspace1.BLEZmem(self.pc)
-            if registers[int(assembledlist[self.pc][1][1])]['data'] <= 0:
-                self.pc = self.pc + (int(assembledlist[self.pc][2]) / 4)
             self.BLEZsim()
-        if assembledlist[self.pc][0] is 'ADDI':
+        elif assembledlist[self.pc][0] is 'ADDI':
             memspace1.ADDImem(self.pc)
             self.ADDIsim()
-        if assembledlist[self.pc][0] is 'MUL':
+        elif assembledlist[self.pc][0] is 'AND':
+            memspace1.ANDmem(self.pc)
+            self.ANDsim()
+        elif assembledlist[self.pc][0] is 'MUL':
             memspace1.MULmem(self.pc)
             self.MULsim()
-        if assembledlist[self.pc][0] is 'LW':
+        elif assembledlist[self.pc][0] is 'LW':
             memspace1.LWmem(self.pc)
             self.LWsim()
-        if assembledlist[self.pc][0] is 'SW':
+        elif assembledlist[self.pc][0] is 'SW':
             memspace1.SWmem(self.pc)
             self.SWsim()
-        if assembledlist[self.pc][0] is 'SRL':
+        elif assembledlist[self.pc][0] is 'SRL':
             memspace1.SRLmem(self.pc)
             self.SRLsim()
-        if assembledlist[self.pc][0] is 'JR':
-            self.pc = (registers[int(assembledlist[self.pc][1][1])]['data'] / 4)
+        elif assembledlist[self.pc][0] is 'JR':
             self.JRsim()
-        if assembledlist[self.pc][0] is 'MOVZ':
+        elif assembledlist[self.pc][0] is 'MOVZ':
             memspace1.MOVZmem(self.pc)
             self.MOVZsim()
-        if assembledlist[self.pc][0] is 'ADD':
+        elif assembledlist[self.pc][0] is 'ADD':
             memspace1.ADDmem(self.pc)
             self.ADDsim()
-        if assembledlist[self.pc][0] is 'SUB':
+        elif assembledlist[self.pc][0] is 'SUB':
             memspace1.SUBmem(self.pc)
             self.SUBsim()
-        if assembledlist[self.pc][0] is 'OR':
+        elif assembledlist[self.pc][0] is 'OR':
             memspace1.ORmem(self.pc)
             self.ORsim()
-        if assembledlist[self.pc][0] is 'XOR':
+        elif assembledlist[self.pc][0] is 'XOR':
             memspace1.XORmem(self.pc)
             self.XORsim()
 
@@ -206,54 +211,79 @@ class simulator(object):
                                 str(assembledlist[self.pc][3]) + '\n')
 
     def MULsim(self):
-        pass
+        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
+        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', ' +
+                                str(assembledlist[self.pc][3]) + '\n')
 
     def ANDsim(self):
-        pass
+        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
+        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', ' +
+                                str(assembledlist[self.pc][3]) + '\n')
 
     def ORsim(self):
-        pass
+        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
+        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', ' +
+                                str(assembledlist[self.pc][3]) + '\n')
 
     def XORsim(self):
-        pass
+        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
+        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', ' +
+                                str(assembledlist[self.pc][3]) + '\n')
 
     def MOVsim(self):
-        pass
+        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
+        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', ' +
+                                str(assembledlist[self.pc][3]) + '\n')
 
     def NOPsim(self):
-        pass
+        self.output_file2.write('What were we supposed to do for %s' % (str(assembledlist[self.pc][0])))
 
     def BNEsim(self):
-        pass
+        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
+        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', #' +
+                                str(assembledlist[self.pc][3]) + '\n')
+#        if registers[int(assembledlist[self.pc][1][1])]['data'] != registers[int(assembledlist[self.pc][2][1])]['data']:
+#            self.pc = self.pc + (int(assembledlist[self.pc][3]) / 4)
 
     def BLEZsim(self):
-        pass
+        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
+        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', #' + str(assembledlist[self.pc][2]) + '\n')
+#        if registers[int(assembledlist[self.pc][1][1])]['data'] <= 0:
+#            print(assembledlist[self.pc][2])
+#            self.pc = ((int(assembledlist[self.pc][2]) << 2) / 4)
 
     def Jsim(self):
-        pass
+        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
+        self.output_file2.write('\t#' + str(assembledlist[self.pc][1]) + '\n')
+        # self.pc = ((int(assembledlist[self.pc][1]) - 96) / 4)
 
     def JRsim(self):
-        pass
+        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
+        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + '\n')
+        # self.pc = (registers[int(assembledlist[self.pc][1][1])]['data'] / 4)
 
     def SUBsim(self):
-        pass
+        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
+        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', ' +
+                                str(assembledlist[self.pc][3]) + '\n')
 
     def BREAKsim(self):
-        pass
+        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
 
     def ADDsim(self):
-        pass
+        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
+        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', ' +
+                                str(assembledlist[self.pc][3]) + '\n')
 
     def ADDIsim(self):
         self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
         self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', #' +
                                 str(assembledlist[self.pc][3]) + '\n')
 
-    def Rsim(self):
-        pass
-
     def MOVZsim(self):
-        pass
+        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
+        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', ' +
+                                str(assembledlist[self.pc][3]) + '\n')
 
 
 class memspace(object):
@@ -327,9 +357,6 @@ class memspace(object):
         registers[int(assembledlist[pc][1][1])]['data'] = \
             registers[int(assembledlist[pc][2][1])]['data'] + \
             int(assembledlist[pc][3])
-
-    def Rmem(self, pc):
-        pass
 
 
 class Dissasembler(object):
