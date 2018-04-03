@@ -37,7 +37,7 @@ registers[6] = {'name': "R6", 'data': 0}
 registers[7] = {'name': "R7", 'data': 0}
 registers[8] = {'name': "R8", 'data': 0}
 registers[9] = {'name': "R9", 'data': 0}
-registers[10] = {'name': "R1O", 'data': 0}
+registers[10] = {'name': "R10", 'data': 0}
 registers[11] = {'name': "R11", 'data': 0}
 registers[12] = {'name': "R12", 'data': 0}
 registers[13] = {'name': "R13", 'data': 0}
@@ -47,7 +47,7 @@ registers[16] = {'name': "R16", 'data': 0}
 registers[17] = {'name': "R17", 'data': 0}
 registers[18] = {'name': "R18", 'data': 0}
 registers[19] = {'name': "R19", 'data': 0}
-registers[20] = {'name': "R2O", 'data': 0}
+registers[20] = {'name': "R20", 'data': 0}
 registers[21] = {'name': "R21", 'data': 0}
 registers[22] = {'name': "R22", 'data': 0}
 registers[23] = {'name': "R23", 'data': 0}
@@ -57,7 +57,7 @@ registers[26] = {'name': "R26", 'data': 0}
 registers[27] = {'name': "R27", 'data': 0}
 registers[28] = {'name': "R28", 'data': 0}
 registers[29] = {'name': "R29", 'data': 0}
-registers[30] = {'name': "R3O", 'data': 0}
+registers[30] = {'name': "R30", 'data': 0}
 registers[31] = {'name': "R31", 'data': 0}
 
 assembledlist = []
@@ -87,12 +87,13 @@ class simulator(object):
             return
 
         while self.break_found is False:
-            cycle = cycle + 1
-            self.output_file2.write("=====================\n")
-            self.output_file2.write("cycle:" + str(cycle) + " " + str((self.pc * 4) + 96) + "\t")
+            if(assembledlist[self.pc][0] is not 'NOP' ):
+                cycle = cycle + 1
+                self.output_file2.write("=====================\n")
+                self.output_file2.write("cycle:" + str(cycle) + " " + str((self.pc * 4) + 96) + "\t")
 
-            self.choose(memspace1)
-            self.regout()
+                self.choose(memspace1)
+                self.regout()
             self.pc = self.pc + 1
 
         out_file.close()
@@ -118,19 +119,15 @@ class simulator(object):
                                 + str(registers[30]['data']) + '\t' + str(registers[31]['data']) + '\n')
 
         self.output_file2.write('\nData:\n')
-        self.output_file2.write(str(datalist[0][0]) + ':\t' + str(datalist[0][1]) + '\t' + str(datalist[1][1]) + '\t'
-                                + str(datalist[2][1]) + '\t' + str(datalist[3][1]) + '\t'
-                                + str(datalist[4][1]) + '\t' + str(datalist[5][1]) + '\t'
-                                + str(datalist[6][1]) + '\t' + str(datalist[7][1]) + '\n')
-        self.output_file2.write(str(datalist[8][0]) + ':\t' + str(datalist[8][1]) + '\t' + str(datalist[9][1]) + '\t'
-                                + str(datalist[10][1]) + '\t' + str(datalist[11][1]) + '\t'
-                                + str(datalist[12][1]) + '\t' + str(datalist[13][1]) + '\t'
-                                + str(datalist[14][1]) + '\t' + str(datalist[15][1]) + '\n')
-        self.output_file2.write(str(datalist[16][0]) + ':\t' + str(datalist[16][1]) + '\t' + str(datalist[17][1]) + '\t'
-                                + str(datalist[18][1]) + '\t' + str(datalist[19][1]) + '\t'
-                                + str(datalist[20][1]) + '\t' + str(datalist[21][1]) + '\t'
-                                + str(datalist[22][1]) + '\t' + str(datalist[23][1]) + '\n')
-
+        dataindex = 0
+        while (dataindex < len(datalist)):
+            if (dataindex % 8 == 0):
+                self.output_file2.write(str(datalist[dataindex][0]) + ':\t' + str(datalist[dataindex][1]) + '\t')
+            if (dataindex % 8 == 7):
+                self.output_file2.write(str(datalist[dataindex][1]) + '\n')
+            else:
+                self.output_file2.write(str(datalist[dataindex][1]) + '\t')
+            dataindex += 1
         self.output_file2.write('\n')
 
 
@@ -242,25 +239,24 @@ class simulator(object):
         self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
         self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', #' +
                                 str(assembledlist[self.pc][3]) + '\n')
-#        if registers[int(assembledlist[self.pc][1][1])]['data'] != registers[int(assembledlist[self.pc][2][1])]['data']:
-#            self.pc = self.pc + (int(assembledlist[self.pc][3]) / 4)
+        if registers[int(filter(str.isdigit,assembledlist[self.pc][1]))]['data'] != registers[int(filter(str.isdigit,assembledlist[self.pc][2]))]['data']:
+            self.pc += (int(assembledlist[self.pc][3]) / 4)
 
     def BLEZsim(self):
         self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
         self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', #' + str(assembledlist[self.pc][2]) + '\n')
-#        if registers[int(assembledlist[self.pc][1][1])]['data'] <= 0:
-#            print(assembledlist[self.pc][2])
-#            self.pc = ((int(assembledlist[self.pc][2]) << 2) / 4)
+        if registers[int(filter(str.isdigit,assembledlist[self.pc][1]))]['data'] <= 0:
+            self.pc += ((int(assembledlist[self.pc][2])) / 4)
 
     def Jsim(self):
         self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
         self.output_file2.write('\t#' + str(assembledlist[self.pc][1]) + '\n')
-        # self.pc = ((int(assembledlist[self.pc][1]) - 96) / 4)
+        self.pc = (int(assembledlist[self.pc][1]) -96) /4 -1
 
     def JRsim(self):
         self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
         self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + '\n')
-        # self.pc = (registers[int(assembledlist[self.pc][1][1])]['data'] / 4)
+        self.pc = registers[int(filter(str.isdigit,assembledlist[self.pc][1]))]['data'] / 4 - 1
 
     def SUBsim(self):
         self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
@@ -291,46 +287,51 @@ class memspace(object):
         pass
 
     def SWmem(self, pc):
-        regsourcedata = registers[int(assembledlist[pc][2][1])]['data']
-        offset = registers[int(assembledlist[pc][1][1])]['data']
+        regsourcedata = registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data']
+        offset = registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data']
         datalistindex = (int(assembledlist[pc][3]) - datalist[0][0] + regsourcedata + offset)/4 -2
         while (datalistindex >= len(datalist)):
             memory_location = datalist[-1][0] + 4
             datalist.append([memory_location] + [0])
-        datalist[datalistindex][1] = registers[int(assembledlist[pc][2][1])]['data']
+        datalist[datalistindex][1] = registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data']
 
     def LWmem(self, pc):
-        regsourcedata = registers[int(assembledlist[pc][2][1])]['data']
-        offset = registers[int(assembledlist[pc][1][1])]['data']
+        regsourcedata = registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data']
+        offset = registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data']
         datalistindex = (int(assembledlist[pc][3]) - datalist[0][0] + regsourcedata + offset) / 4
         if int(datalistindex < len(datalist)):
-            registers[int(assembledlist[pc][2][1])]['data'] = datalist[datalistindex][1]
+            registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data'] = datalist[datalistindex][1]
 
     def MOVZmem(self, pc):
-        pass
+        if(registers[int(filter(str.isdigit,assembledlist[pc][3]))]['data'] == 0):
+            registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data'] = registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data']
 
     def SLLmem(self, pc):
-        registers[int(assembledlist[pc][1][1])]['data'] = registers[int(assembledlist[pc][2][1])]['data'] << \
-                                                                    registers[int(assembledlist[pc][3])]['data']
+        shifted = registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data'] << int(assembledlist[pc][3])
+        registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data'] = shifted
 
     def SRLmem(self, pc):
-        registers[int(assembledlist[pc][1][1])]['data'] = registers[int(assembledlist[pc][2][1])]['data'] >> \
-                                                          registers[int(assembledlist[pc][3])]['data']
+        shifted = registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data'] >> int(assembledlist[pc][3])
+        registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data'] = shifted
+
 
     def MULmem(self, pc):
-        pass
+        mulvalue = registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data'] * registers[int(filter(str.isdigit,assembledlist[pc][3]))]['data']
+        mulvalue = mulvalue % 32
+        registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data'] = mulvalue
+
 
     def ANDmem(self, pc):
-        registers[int(assembledlist[pc][1][1])]['data'] = int(registers[int(assembledlist[pc][2][1])]['data']) & \
-                                                          int(registers[int(assembledlist[pc][3][1])]['data'])
+        registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data'] = int(registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data']) & \
+                                                          int(registers[int(filter(str.isdigit,assembledlist[pc][3]))]['data'])
 
     def ORmem(self, pc):
-        registers[int(assembledlist[pc][1][1])]['data'] = int(registers[int(assembledlist[pc][2][1])]['data']) | \
-                                                          int(registers[int(assembledlist[pc][3][1])]['data'])
+        registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data'] = int(registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data']) | \
+                                                          int(registers[int(filter(str.isdigit,assembledlist[pc][3]))]['data'])
 
     def XORmem(self, pc):
-        registers[int(assembledlist[pc][1][1])]['data'] = int(registers[int(assembledlist[pc][2][1])]['data']) ^ \
-                                                          int(registers[int(assembledlist[pc][3][1])]['data'])
+        registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data'] = int(registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data']) ^ \
+                                                          int(registers[int(filter(str.isdigit,assembledlist[pc][3]))]['data'])
 
     def MOVmem(self, pc):
         pass
@@ -351,21 +352,21 @@ class memspace(object):
         pass
 
     def SUBmem(self, pc):
-        registers[int(assembledlist[pc][1][1])]['data'] = \
-            registers[int(assembledlist[pc][2][1])]['data'] - \
-            registers[int(assembledlist[pc][3][1])]['data']
+        registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data'] = \
+            registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data'] - \
+            registers[int(filter(str.isdigit,assembledlist[pc][3]))]['data']
 
     def BREAKmem(self, pc):
         pass
 
     def ADDmem(self, pc):
-        registers[int(assembledlist[pc][1][1])]['data'] = \
-            registers[int(assembledlist[pc][2][1])]['data'] + \
-            registers[int(assembledlist[pc][3][1])]['data']
+        registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data'] = \
+            registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data'] + \
+            registers[int(filter(str.isdigit,assembledlist[pc][3]))]['data']
 
     def ADDImem(self, pc):
-        registers[int(assembledlist[pc][1][1])]['data'] = \
-            registers[int(assembledlist[pc][2][1])]['data'] + \
+        registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data'] = \
+            registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data'] + \
             int(assembledlist[pc][3])
 
 
@@ -510,7 +511,7 @@ def run():
             outputfilename = sys.argv[i + 1]
             outputfilename = outputfilename + "_dis.txt"
     if not inputfilename:#default file names if not given
-        inputfilename = "test1_bin.txt"
+        inputfilename = "test2_bin.txt"
     if not outputfilename:
         outputfilename = "team2_out_dis.txt"
     dissasembler1.dirty_work(inputfilename, outputfilename)
