@@ -67,7 +67,7 @@ datalist = []
 class simulator(object):
     pc = 0
     break_found = False
-    output_file2= 0
+    output_file2 = 0
 
     # initializer / instance attributes
     def _init_(self):
@@ -83,7 +83,7 @@ class simulator(object):
         self.break_found = False
 
         if not assembledlist:
-            output_file2.write("no input")
+            self.output_file2.write("no input")
             return
 
         while self.break_found is False:
