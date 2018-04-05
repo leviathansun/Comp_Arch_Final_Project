@@ -74,9 +74,9 @@ class simulator(object):
         pass
 
     # method that runs the Simulator
-    def tycoon(self):
+    def tycoon(self, output_name):
         memspace1 = memspace()
-        out_file = open ("team2_out_sim.txt", "w")
+        out_file = open (output_name, "w")
         self.output_file2 = out_file
         cycle = 0
         self.pc = 0
@@ -512,13 +512,15 @@ def run():
         elif (sys.argv[i] == '-o' and i < (len(sys.argv) - 1)):#check for output file name
             outputfilename = sys.argv[i + 1]
             outputfilename = outputfilename + "_dis.txt"
+            outputfilename2 = outputfilename + "_sim.txt"
     if not inputfilename:#default file names if not given
         inputfilename = "test1_bin.txt"
     if not outputfilename:
         outputfilename = "team2_out_dis.txt"
+        outputfilename2 = "team2_out_sim.txt"
     dissasembler1.dirty_work(inputfilename, outputfilename)
 
-    simulator1.tycoon()
+    simulator1.tycoon(outputfilename2)
 
     return
 
