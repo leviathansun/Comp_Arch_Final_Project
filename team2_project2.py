@@ -511,8 +511,8 @@ def run():
             inputfilename = sys.argv[i + 1]
         elif (sys.argv[i] == '-o' and i < (len(sys.argv) - 1)):#check for output file name
             outputfilename = sys.argv[i + 1]
-            outputfilename = outputfilename + "_dis.txt"
             outputfilename2 = outputfilename + "_sim.txt"
+            outputfilename = outputfilename + "_dis.txt"
     if not inputfilename:#default file names if not given
         inputfilename = "test1_bin.txt"
     if not outputfilename:
