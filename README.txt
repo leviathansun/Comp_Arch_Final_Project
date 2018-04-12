@@ -1,4 +1,4 @@
-Project 2 -Python Simulator for MIPS machine code
+Project 3 -Python Simulator for a pipelined processor with cache
 
 
 Group 2 for CS 3339-264
