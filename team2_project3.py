@@ -511,13 +511,13 @@ def run():
             inputfilename = sys.argv[i + 1]
         elif (sys.argv[i] == '-o' and i < (len(sys.argv) - 1)):#check for output file name
             outputfilename = sys.argv[i + 1]
-            outputfilename2 = outputfilename + "_sim.txt"
+            outputfilename2 = outputfilename + "_pipeline.txt"
             outputfilename = outputfilename + "_dis.txt"
     if not inputfilename:#default file names if not given
         inputfilename = "test1_bin.txt"
     if not outputfilename:
         outputfilename = "team2_out_dis.txt"
-        outputfilename2 = "team2_out_sim.txt"
+        outputfilename2 = "team2_out_pipeline.txt"
     dissasembler1.dirty_work(inputfilename, outputfilename)
 
     simulator1.tycoon(outputfilename2)
