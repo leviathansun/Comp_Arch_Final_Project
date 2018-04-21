@@ -60,315 +60,21 @@ registers[29] = {'name': "R29", 'data': 0}
 registers[30] = {'name': "R30", 'data': 0}
 registers[31] = {'name': "R31", 'data': 0}
 
-assembledlist = []
 datalist = []
-
-
-class simulator(object):
-    pc = 0
-    break_found = False
-    output_file2 = 0
-
-    # initializer / instance attributes
-    def _init_(self):
-        pass
-
-    # method that runs the Simulator
-    def tycoon(self, output_name):
-        memspace1 = memspace()
-        out_file = open (output_name, "w")
-        self.output_file2 = out_file
-        cycle = 0
-        self.pc = 0
-        self.break_found = False
-
-        if not assembledlist:
-            self.output_file2.write("no input")
-            return
-
-        while self.break_found is False:
-            if str(assembledlist[self.pc][0]) != 'Invalid Instruction':
-                cycle = cycle + 1
-                self.output_file2.write("=====================\n")
-                self.output_file2.write("cycle:" + str(cycle) + "\t" + str((self.pc * 4) + 96) + "\t")
-
-                self.choose(memspace1)
-                self.regout()
-            self.pc = self.pc + 1
-
-        out_file.close()
-        self.output_file2.close()
-
-    # method that creates register output
-    def regout(self):
-        self.output_file2.write('\nregisters:\n')
-        self.output_file2.write('R00:\t' + str(registers[0]['data']) + '\t' + str(registers[1]['data']) + '\t'
-                                + str(registers[2]['data']) + '\t' + str(registers[3]['data']) + '\t'
-                                + str(registers[4]['data']) + '\t' + str(registers[5]['data']) + '\t'
-                                + str(registers[6]['data']) + '\t' + str(registers[7]['data']) + '\n')
-        self.output_file2.write('R08:\t' + str(registers[8]['data']) + '\t' + str(registers[9]['data']) + '\t'
-                                + str(registers[10]['data']) + '\t' + str(registers[11]['data']) + '\t'
-                                + str(registers[12]['data']) + '\t' + str(registers[13]['data']) + '\t'
-                                + str(registers[14]['data']) + '\t' + str(registers[15]['data']) + '\n')
-        self.output_file2.write('R16:\t' + str(registers[16]['data']) + '\t' + str(registers[17]['data']) + '\t'
-                                + str(registers[18]['data']) + '\t' + str(registers[19]['data']) + '\t'
-                                + str(registers[20]['data']) + '\t' + str(registers[21]['data']) + '\t'
-                                + str(registers[22]['data']) + '\t' + str(registers[23]['data']) + '\n')
-        self.output_file2.write('R24:\t' + str(registers[24]['data']) + '\t' + str(registers[25]['data']) + '\t'
-                                + str(registers[26]['data']) + '\t' + str(registers[27]['data']) + '\t'
-                                + str(registers[28]['data']) + '\t' + str(registers[29]['data']) + '\t'
-                                + str(registers[30]['data']) + '\t' + str(registers[31]['data']) + '\n')
-
-        self.output_file2.write('\ndata:\n')
-        dataindex = 0
-        while (dataindex < len(datalist)):
-            if (dataindex % 8 == 0):
-                self.output_file2.write(str(datalist[dataindex][0]) + ':\t')
-            if (dataindex % 8 == 7):
-                self.output_file2.write(str(datalist[dataindex][1]) + '\n')
-            else:
-                self.output_file2.write(str(datalist[dataindex][1]) + '\t')
-            dataindex += 1
-        self.output_file2.write('\n')
-
-
-    # method that selects which instruction is being called
-    def choose(self, memspace1):
-        if assembledlist[self.pc][0] is 'SLL':
-            memspace1.SLLmem(self.pc)
-            self.SLLsim()
-        elif assembledlist[self.pc][0] is 'BREAK':
-            memspace1.BREAKmem(self.pc)
-            self.BREAKsim()
-            self.break_found = True
-        elif assembledlist[self.pc][0] is 'NOP':
-            memspace1.NOPmem(self.pc)
-            self.NOPsim()
-        elif assembledlist[self.pc][0] is 'J':
-            self.Jsim()
-        elif assembledlist[self.pc][0] is 'BNE':
-            memspace1.BNEmem(self.pc)
-            self.BNEsim()
-        elif assembledlist[self.pc][0] is 'BLEZ':
-            memspace1.BLEZmem(self.pc)
-            self.BLEZsim()
-        elif assembledlist[self.pc][0] is 'ADDI':
-            memspace1.ADDImem(self.pc)
-            self.ADDIsim()
-        elif assembledlist[self.pc][0] is 'AND':
-            memspace1.ANDmem(self.pc)
-            self.ANDsim()
-        elif assembledlist[self.pc][0] is 'MUL':
-            memspace1.MULmem(self.pc)
-            self.MULsim()
-        elif assembledlist[self.pc][0] is 'LW':
-            memspace1.LWmem(self.pc)
-            self.LWsim()
-        elif assembledlist[self.pc][0] is 'SW':
-            memspace1.SWmem(self.pc)
-            self.SWsim()
-        elif assembledlist[self.pc][0] is 'SRL':
-            memspace1.SRLmem(self.pc)
-            self.SRLsim()
-        elif assembledlist[self.pc][0] is 'JR':
-            self.JRsim()
-        elif assembledlist[self.pc][0] is 'MOVZ':
-            memspace1.MOVZmem(self.pc)
-            self.MOVZsim()
-        elif assembledlist[self.pc][0] is 'ADD':
-            memspace1.ADDmem(self.pc)
-            self.ADDsim()
-        elif assembledlist[self.pc][0] is 'SUB':
-            memspace1.SUBmem(self.pc)
-            self.SUBsim()
-        elif assembledlist[self.pc][0] is 'OR':
-            memspace1.ORmem(self.pc)
-            self.ORsim()
-        elif assembledlist[self.pc][0] is 'XOR':
-            memspace1.XORmem(self.pc)
-            self.XORsim()
-
-    def SWsim(self):
-        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
-        self.output_file2.write('\t' + str(assembledlist[self.pc][2]) + ', ' +
-                                str(assembledlist[self.pc][3]) + '(' + str(assembledlist[self.pc][1]) + ')' + '\n')
-
-    def LWsim(self):
-        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
-        self.output_file2.write('\t' + str(assembledlist[self.pc][2]) + ', ' +
-                                str(assembledlist[self.pc][3]) + '(' + str(assembledlist[self.pc][1]) + ')' + '\n')
-
-    def SLLsim(self):
-        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
-        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', #' +
-                                str(assembledlist[self.pc][3]) + '\n')
-
-    def SRLsim(self):
-        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
-        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', #' +
-                                str(assembledlist[self.pc][3]) + '\n')
-
-    def MULsim(self):
-        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
-        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', ' +
-                                str(assembledlist[self.pc][3]) + '\n')
-
-    def ANDsim(self):
-        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
-        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', ' +
-                                str(assembledlist[self.pc][3]) + '\n')
-
-    def ORsim(self):
-        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
-        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', ' +
-                                str(assembledlist[self.pc][3]) + '\n')
-
-    def XORsim(self):
-        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
-        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', ' +
-                                str(assembledlist[self.pc][3]) + '\n')
-
-    def MOVsim(self):
-        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
-        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', ' +
-                                str(assembledlist[self.pc][3]) + '\n')
-
-    def NOPsim(self):
-        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
-
-    def BNEsim(self):
-        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
-        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', #' +
-                                str(assembledlist[self.pc][3]) + '\n')
-        if registers[int(filter(str.isdigit,assembledlist[self.pc][1]))]['data'] != registers[int(filter(str.isdigit,assembledlist[self.pc][2]))]['data']:
-            self.pc += (int(assembledlist[self.pc][3]) / 4)
-
-    def BLEZsim(self):
-        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
-        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', #' + str(assembledlist[self.pc][2]) + '\n')
-        if registers[int(filter(str.isdigit,assembledlist[self.pc][1]))]['data'] <= 0:
-            self.pc += (((int(assembledlist[self.pc][2])) / 4))
-
-    def Jsim(self):
-        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
-        self.output_file2.write('\t#' + str(assembledlist[self.pc][1]) + '\n')
-        self.pc = (int(assembledlist[self.pc][1]) -96) /4 -1
-
-    def JRsim(self):
-        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
-        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + '\n')
-        self.pc = (registers[int(filter(str.isdigit,assembledlist[self.pc][1]))]['data'] - 96) / 4 - 1
-
-    def SUBsim(self):
-        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
-        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', ' +
-                                str(assembledlist[self.pc][3]) + '\n')
-
-    def BREAKsim(self):
-        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
-        self.output_file2.write('\n')
-
-    def ADDsim(self):
-        self.output_file2.write(assembledlist[self.pc][0])
-        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', ' +
-                                str(assembledlist[self.pc][3]) + '\n')
-
-    def ADDIsim(self):
-        self.output_file2.write(assembledlist[self.pc][0])
-        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', #' +
-                                str(assembledlist[self.pc][3]) + '\n')
-
-    def MOVZsim(self):
-        self.output_file2.write('%s' % (str(assembledlist[self.pc][0])))
-        self.output_file2.write('\t' + str(assembledlist[self.pc][1]) + ', ' + str(assembledlist[self.pc][2]) + ', ' +
-                                str(assembledlist[self.pc][3]) + '\n')
-
-    def NOPsim(self):
-        self.output_file2.write('NOP\n')
-
-
-class memspace(object):
-    def _init_(self, pc):
-        pass
-
-    def SWmem(self, pc):
-        regsourcedata = registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data']
-        offset = registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data']
-        datalistindex = (int(assembledlist[pc][3]) - datalist[0][0] + offset)/4
-        while (datalistindex >= len(datalist)):
-            memory_location = datalist[-1][0] + 4
-            for x in range(0, 7):
-                datalist.append([memory_location] + [0])
-        datalist[datalistindex][1] = registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data']
-
-    def LWmem(self, pc):
-        regsourcedata = registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data']
-        offset = registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data']
-        datalistindex = (int(assembledlist[pc][3]) - datalist[0][0]  + offset) / 4
-        if int(datalistindex < len(datalist)):
-            registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data'] = datalist[datalistindex][1]
-
-    def MOVZmem(self, pc):
-        if(registers[int(filter(str.isdigit,assembledlist[pc][3]))]['data'] == 0):
-            registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data'] = registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data']
-
-    def SLLmem(self, pc):
-        shifted = registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data'] << int(assembledlist[pc][3])
-        registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data'] = shifted
-
-    def SRLmem(self, pc):
-        shifted = registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data'] >> int(assembledlist[pc][3])
-        registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data'] = shifted
-
-
-    def MULmem(self, pc):
-        mulvalue = registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data'] * registers[int(filter(str.isdigit,assembledlist[pc][3]))]['data']
-        registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data'] = mulvalue
-
-    def ANDmem(self, pc):
-        registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data'] = int(registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data']) & \
-                                                          int(registers[int(filter(str.isdigit,assembledlist[pc][3]))]['data'])
-
-    def ORmem(self, pc):
-        registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data'] = int(registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data']) | \
-                                                          int(registers[int(filter(str.isdigit,assembledlist[pc][3]))]['data'])
-
-    def XORmem(self, pc):
-        registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data'] = int(registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data']) ^ \
-                                                          int(registers[int(filter(str.isdigit,assembledlist[pc][3]))]['data'])
-
-    def NOPmem(self, pc):
-        pass
-
-    def BNEmem(self, pc):
-        pass
-
-    def BLEZmem(self, pc):
-        pass
-
-    def Jmem(self, pc):
-        pass
-
-    def JRmem(self, pc):
-        pass
-
-    def SUBmem(self, pc):
-        registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data'] = \
-            registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data'] - \
-            registers[int(filter(str.isdigit,assembledlist[pc][3]))]['data']
-
-    def BREAKmem(self, pc):
-        pass
-
-    def ADDmem(self, pc):
-        registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data'] = \
-            registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data'] + \
-            registers[int(filter(str.isdigit,assembledlist[pc][3]))]['data']
-
-    def ADDImem(self, pc):
-        registers[int(filter(str.isdigit,assembledlist[pc][1]))]['data'] = \
-            registers[int(filter(str.isdigit,assembledlist[pc][2]))]['data'] + \
-            int(assembledlist[pc][3])
+instruction = []
+opcodelist = []
+instrName = []
+address = []
+validInstr = []
+arg1 = []
+arg2 = []
+arg3 = []
+destReg = []
+src1Reg = []
+src2Reg = []
+invalid = -1
+PC = 96
+numInstrs = 0
 
 
 class Dissasembler(object):
@@ -378,6 +84,8 @@ class Dissasembler(object):
 
     # method that runs the dissasember
     def dirty_work(self, input_name, output_name):
+        global invalid
+        global numInstrs
         input_file = open(input_name, "r")
         output_file = open(output_name, "w")
         counter = 0
@@ -388,6 +96,9 @@ class Dissasembler(object):
             if break_found is False:
                 validbit = line[0] #parse out the bits
                 opcode = line[1:6]
+                opcodelist.append(int(opcode, 2))
+                validInstr.append(int(validbit))
+                instruction.append(line[0:32])
                 group1 = line[6:11]
                 group2 = line[11:16]
                 group3 = line[16:21]
@@ -397,7 +108,20 @@ class Dissasembler(object):
                                   + ' ' + group5 + '\t' + str(memory_location) + '\t') #space output
                 if int(validbit) is 0:#check for invalid instruction
                     output_file.write("Invalid Instruction")
-                    assembledlist.append(['Invalid Instruction'])
+
+                    instrName.append('Invalid Instruction')
+                    address.append(PC + (counter * 4))
+                    arg1.append(int(group1, 2))
+                    arg2.append(int(group2, 2))
+                    arg3.append(' ')
+                    destReg.append(invalid)
+                    invalid -= 1
+                    src1Reg.append(invalid)
+                    invalid -= 1
+                    src2Reg.append(invalid)
+                    invalid -= 1
+                    numInstrs += 1
+                    counter += 1
                 else:
                     if int(opcode, 2) is 0:#Check for R type and use function code
                         rs = registers[int(group1, 2)]['name']
@@ -411,28 +135,85 @@ class Dissasembler(object):
                             if (rd == registers[0]['name']) and (rt == registers[0]['name']):
                                 output_file.write('%s' % ('NOP'))
 
-                                assembledlist.append(['NOP'])
+                                instrName.append('NOP')
+                                address.append(PC + (counter * 4))
+                                arg1.append(int(group1, 2))
+                                arg2.append(int(group2, 2))
+                                arg3.append('')
+                                destReg.append(invalid)
+                                invalid -= 1
+                                src1Reg.append(invalid)
+                                invalid -= 1
+                                src2Reg.append(invalid)
+                                invalid -= 1
+                                numInstrs += 1
+                                counter += 1
                             else:
                                 output_file.write('%s' % (function_name))
                                 output_file.write('\t' + rd + ', ' + rt + ', #' + str(sa))
 
-                                assembledlist.append([function_name] + [rd] + [rt] + [str(sa)])
+                                instrName.append(function_name)
+                                address.append(PC + (counter * 4))
+                                arg1.append(int(group2, 2))
+                                arg2.append(int(group3, 2))
+                                arg3.append(int(group4, 2))
+                                destReg.append(arg2[counter])
+                                src1Reg.append(arg1[counter])
+                                src2Reg.append(invalid)
+                                invalid -= 1
+                                numInstrs += 1
+                                counter += 1
+
                         if subtype is 1:
                             output_file.write('%s' % (function_name))
                             output_file.write('\t' + rs)
 
-                            assembledlist.append([function_name] + [rs])
+                            instrName.append(function_name)
+                            address.append(PC + (counter * 4))
+                            arg1.append(int(group1, 2))
+                            arg2.append(0)
+                            arg3.append(0)
+                            destReg.append(invalid)
+                            invalid -= 1
+                            src1Reg.append(arg1[counter])
+                            src2Reg.append(invalid)
+                            invalid -= 1
+                            numInstrs += 1
+                            counter += 1
+
                         if subtype is 2:
                             output_file.write('%s' % (function_name))
                             output_file.write('\t' + rd + ', ' + rs + ', ' + rt)
 
-                            assembledlist.append([function_name] + [rd] + [rs] + [rt])
+                            instrName.append('function_name')
+                            address.append(PC + (counter * 4))
+                            arg1.append(int(group1, 2))
+                            arg2.append(int(group2, 2))
+                            arg3.append(int(group3, 2))
+                            destReg.append(arg3[counter])
+                            src1Reg.append(arg1[counter])
+                            src2Reg.append(arg2[counter])
+                            numInstrs += 1
+                            counter += 1
+
                         if subtype is 3:
                             output_file.write('%s' % (function_name))
 
-                            assembledlist.append([function_name])
-                        if function_name is "BREAK":
+                            instrName.append('BREAK')
+                            address.append(PC + (counter * 4))
+                            arg1.append(int(group1, 2))
+                            arg2.append(int(group2, 2))
+                            arg3.append(0)
+                            destReg.append(invalid)
+                            invalid -= 1
+                            src1Reg.append(invalid)
+                            invalid -= 1
+                            src2Reg.append(invalid)
+                            invalid -= 1
+                            numInstrs += 1
+                            counter += 1
                             break_found = True
+
                     else:#not R type instructions
                         if (int(opcode, 2) in opcodes) == True:
                             funct = int(opcode, 2)
@@ -443,45 +224,114 @@ class Dissasembler(object):
                                 output_file.write('%s' % (function_name))
                                 output_file.write('\t#' + str(jumpCode))
 
-                                assembledlist.append([function_name] + [str(jumpCode)])
-                            if subtype is 5:
+                                instrName.append(function_name)
+                                address.append(PC + (counter * 4))
+                                arg1.append(jumpCode)
+                                arg2.append(0)
+                                arg3.append(0)
+                                destReg.append(invalid)
+                                invalid -= 1
+                                src1Reg.append(invalid)
+                                invalid -= 1
+                                src2Reg.append(invalid)
+                                invalid -= 1
+                                numInstrs += 1
+                                counter += 1
+
+                        if subtype is 5:
                                 rs = registers[int(group1, 2)]['name']
                                 rt = registers[int(group2, 2)]['name']
                                 offset = int(line[16:32], 2)
                                 output_file.write('%s' % (function_name))
                                 output_file.write('\t' + rt + ', ' + str(offset) +"(" + rs + ')' )
 
-                                assembledlist.append([function_name] + [rs] + [rt] + [str(offset)])
-                            if subtype is 6:
-                                rs = registers[int(group1, 2)]['name']
-                                offset = int(line[16:32], 2)*4
-                                output_file.write('%s' % (function_name))
-                                output_file.write('\t' + rs + ', #' + str(offset))
+                                instrName.append(function_name)
+                                address.append(PC + (counter * 4))
+                                arg1.append(int(group1, 2))
+                                arg2.append(int(group2, 2))
+                                arg3.append(offset)
+                                if funct == 11:
+                                    destReg.append(invalid)
+                                    invalid -= 1
+                                    src1Reg.append(arg2[counter])
+                                    src2Reg.append(arg1[counter])
+                                elif funct == 11:
+                                    destReg.append(arg2[counter])
+                                    src1Reg.append(arg1[counter])
+                                    src2Reg.append(invalid)
+                                    invalid -= 1
+                                elif funct == 5:
+                                    destReg.append(invalid)
+                                    invalid -= 1
+                                    src1Reg.append(arg1[counter])
+                                    src2Reg.append(arg2[counter])
+                                numInstrs += 1
+                                counter += 1
+                        if subtype is 6:
+                            rs = registers[int(group1, 2)]['name']
+                            offset = int(line[16:32], 2)*4
+                            output_file.write('%s' % (function_name))
+                            output_file.write('\t' + rs + ', #' + str(offset))
 
-                                assembledlist.append([function_name] + [rs] + [str(offset)])
-                            if subtype is 7:
-                                rs = registers[int(group1, 2)]['name']
-                                rt = registers[int(group2, 2)]['name']
-                                rd = registers[int(group3, 2)]['name']
-                                output_file.write('%s' % (function_name))
-                                output_file.write('\t' + rd + ', ' + rs + ', ' + rt)
+                            instrName.append(function_name)
+                            address.append(PC + (counter * 4))
+                            arg1.append(int(group1, 2))
+                            arg2.append(int(group2, 2))
+                            arg3.append(offset)
+                            destReg.append(invalid)
+                            invalid -= 1
+                            src1Reg.append(arg1[counter])
+                            src2Reg.append(invalid)
+                            invalid -= 1
+                            numInstrs += 1
+                            counter += 1
 
-                                assembledlist.append([function_name] + [rd] + [rs] + [rt])
-                            if subtype is 8:
-                                rs = registers[int(group1, 2)]['name']
-                                rt = registers[int(group2, 2)]['name']
-                                immediate = str(self.twos_comp(int(line[16:32], 2), len(line[16:32])))
-                                output_file.write('%s' % (function_name))
-                                output_file.write('\t' + rt + ', ' + rs + ', #' + str(immediate))
+                        if subtype is 7:
+                            rs = registers[int(group1, 2)]['name']
+                            rt = registers[int(group2, 2)]['name']
+                            rd = registers[int(group3, 2)]['name']
+                            output_file.write('%s' % (function_name))
+                            output_file.write('\t' + rd + ', ' + rs + ', ' + rt)
 
-                                assembledlist.append([function_name] + [rt] + [rs] + [str(immediate)])
+                            instrName.append(function_name)
+                            address.append(PC + (counter * 4))
+                            arg1.append(int(group1, 2))
+                            arg2.append(int(group2, 2))
+                            arg3.append(int(group3, 2))
+                            destReg.append(arg3[counter])
+                            src1Reg.append(arg1[counter])
+                            src2Reg.append(arg2[counter])
+                            numInstrs += 1
+                            counter += 1
+
+                        if subtype is 8:
+                            rs = registers[int(group1, 2)]['name']
+                            rt = registers[int(group2, 2)]['name']
+                            immediate = str(self.twos_comp(int(line[16:32], 2), len(line[16:32])))
+                            output_file.write('%s' % (function_name))
+                            output_file.write('\t' + rt + ', ' + rs + ', #' + str(immediate))
+
+                            instrName.append('ADDI')
+                            address.append(PC + (counter * 4))
+                            arg1.append(int(group1, 2))
+                            arg2.append(int(group2, 2))
+                            arg3.append(int(group3, 2))
+                            arg3[counter] = immediate
+                            destReg.append(arg2[counter])
+                            src1Reg.append(arg1[counter])
+                            src2Reg.append(invalid)
+                            invalid -= 1
+                            numInstrs += 1
+                            counter += 1
+
             else:#Output after Break
                 output_file.write('%s' % (line[0:32]))
                 output_file.write('\t' + (str(memory_location) + '\t' + str(self.twos_comp(int(line[0:32], 2), len(line[0:32])))))
-                datalist.append([memory_location] + [self.twos_comp(int(line[0:32], 2), len(line[0:32]))])
+                datalist.append(self.twos_comp(int(line[0:32], 2), len(line[0:32])))
+                address.append(PC + (counter * 4))
+                counter += 1
             output_file.write("\n")
             memory_location += 4 # iterate memory location
-            counter += 1
 
         #close out files
         input_file.close()
@@ -499,30 +349,745 @@ class Dissasembler(object):
             number = number - (1 << bitlength)
         return number
 
+class writeBack:
+    def __init__(self):
+        pass
+    def run(self):
+        if(pipline.postALUBuff[1] != -1):
+            pipline.registers[pipline.destReg[pipline.postALUBuff[1]]] = pipline.postALUBuff[0]
+            pipline.postALUBuff[0] = -1
+            pipline.postALUBuff[1] = -1
+        if(pipline.postMemBuff[1] != -1):
+            pipline.registers[pipline.destReg[pipline.postMemBuff[1]]] = pipline.postMemBuff[0]
+            pipline.postMemBuff[0] = -1
+            pipline.postMemBuff[1] = -1
 
-# driver for program
-def run():
-    dissasembler1 = Dissasembler()
-    simulator1 = simulator()
-    inputfilename = ""
-    outputfilename = ""
-    for i in range(len(sys.argv)):
-        if (sys.argv[i] == '-i' and i < (len(sys.argv) - 1)):#check for input file name
-            inputfilename = sys.argv[i + 1]
-        elif (sys.argv[i] == '-o' and i < (len(sys.argv) - 1)):#check for output file name
-            outputfilename = sys.argv[i + 1]
-            outputfilename2 = outputfilename + "_pipeline.txt"
-            outputfilename = outputfilename + "_dis.txt"
-    if not inputfilename:#default file names if not given
-        inputfilename = "test1_bin.txt"
-    if not outputfilename:
-        outputfilename = "team2_out_dis.txt"
-        outputfilename2 = "team2_out_pipeline.txt"
-    dissasembler1.dirty_work(inputfilename, outputfilename)
+class arithmeticLogicUnit:
 
-    simulator1.tycoon(outputfilename2)
+    def __init__(self):
+        pass
 
-    return
+    def run(self):
+        if (pipline.preALUBuff[0] != -1):
+            counter = pipline.preALUBuff[0]
+            pipline.postALUBuff[1] = counter
+            if (pipline.instrName[i] == 'SLL'):
+                pipline.postALUBuff[0] = pipline.registers[pipline.src1Reg[i]] * pow(2, pipline.arg3[i])
+            elif (pipline.instrName[i] == 'SRL'):
+                pipline.postALUBuff[0] = pipline.registers[pipline.src1Reg[i]] / pow(2, pipline.arg3[i])
+            elif (pipline.instrName[i] == 'ADDI'):
+                pipline.postALUBuff[0] = int(pipline.registers[pipline.src1Reg[i]]) + pipline.arg3[i]
+            elif (pipline.instrName[i] == 'MUL'):
+                pipline.postALUBuff[0] = pipline.registers[pipline.src1Reg[i] * pipline.registers[pipline.src2Reg[i]]]
+            elif (pipline.instrName[i] == 'OR'):
+                pipline.postALUBuff[0] = pipline.registers[pipline.src1Reg[i] | pipline.registers[pipline.src2Reg[i]]]
+            elif (pipline.instrName[i] == 'AND'):
+                pipline.postALUBuff[0] = pipline.registers[pipline.src1Reg[i] & pipline.registers[pipline.src2Reg[i]]]
+            elif (pipline.instrName[i] == 'SUB'):
+                pipline.postALUBuff[0] = pipline.registers[pipline.src1Reg[i] - pipline.registers[pipline.src2Reg[i]]]
+            elif (pipline.instrName[i] == 'ADD'):
+                pipline.postALUBuff[0] = pipline.registers[pipline.src1Reg[i]] + pipline.registers[pipline.src2Reg[i]]
+            elif (pipline.instrName[i] == 'MOVZ'):
+                if (pipline.src2Reg[i] == 0):
+                    pipline.postALUBuff[0] = pipline.src1Reg[i]
+            pipline.preALUBuff[0] = pipline.preALUBuff[1]
+            pipline.preALUBuff[1] = -1
+        else:
+            pass
+
+class memWrite:
+    def __init__(self):
+        pass
+    def run(self):
+        if(pipline.preMemBuff[0] != -1):
+            i = pipline.preMemBuff[0]
+            hit = False
+            if(pipline.instrName[i] == 'LW'):
+                address = pipline.arg3[i] + pipline.registers[pipline.src1Reg[i]]
+                hit, data = pipline.cache.accessMemory(pipline.getIndexOfMemAddress(address),-1,False,0)
+
+            elif(pipline.instrName[i] == 'SW'):
+                address = pipline.arg3[i] + pipline.registers[pipline.src2Reg[i]]
+                hit, data = pipline.cache.accessMemory(pipline.getIndexOfMemAddress(address), -1, True, pipline.registers[pipline.src1Reg[i]])
+
+            if(hit):
+
+                if pipline.instrName[i] == 'LW':
+                    pipline.postMemBuff[0] = int(data)
+                    pipline.postMemBuff[1] = i
+
+                pipline.preMemBuff[0] = pipline.preMemBuff[1]
+                pipline.preMemBuff[1] = -1
 
 
-run()
+class issueUnit:
+    def __init__(self):
+        pass
+
+    def run(self):
+        issueMe = True
+        numIssued = 0
+        numInPreIssueBuff = 0
+        currIndex = -1
+        current = 0
+
+        for i in range(4):
+            if (pipline.preIssueBuff[i] != -1):
+                numInPreIssueBuff += 1
+
+        ##WAR CHECK
+        while (numIssued < 2 and numInPreIssueBuff > 0 and current < numInPreIssueBuff):
+            issueMe = True
+            currIndex = pipline.preIssueBuff[current]
+            print('issue checking for: ' + pipline.instrName[currIndex])
+            ## CHECK FOR ROOM IN BUFFERS
+            if pipline.isMemOp(currIndex) and not -1 in pipline.preMemBuff:
+                print 'pre mem full'
+                issueMe = False
+            elif not pipline.isMemOp(currIndex) and not -1 in pipline.preALUBuff:
+                print 'pre alu full'
+                issueMe = False
+
+            ## WAR CHECK
+            if current > 0:
+                for i in range(0, current):
+                    if (pipline.destReg[currIndex] == pipline.src1Reg[pipline.preIssueBuff[i]] or pipline.destReg[
+                        currIndex] == pipline.src2Reg[pipline.preIssueBuff[i]]):
+                        issueMe = False
+                        # break
+            if pipline.isMemOp(currIndex):
+                for i in range(0, len(pipline.preMemBuff)):
+                    if pipline.preMemBuff[i] != -1:
+                        if pipline.destReg[currIndex] == pipline.src1Reg[pipline.preMemBuff[i]] or pipline.destReg[
+                            currIndex] == pipline.src2Reg[pipline.preMemBuff[i]]:
+                            print 'war fail2'
+                            issueMe = False
+                            # break
+            else:  # is ALU op
+                for i in range(0, len(pipline.preALUBuff)):
+                    if pipline.preALUBuff[i] != -1:
+                        if pipline.destReg[currIndex] == pipline.src1Reg[pipline.preALUBuff[i]] or pipline.destReg[
+                            currIndex] == pipline.src2Reg[pipline.preALUBuff[i]]:
+                            print 'war fail3'
+                            issueMe = False
+                            # break
+            ## RAW CHECK
+            if current > 0:
+                for i in range(0, current):
+                    if (pipline.src1Reg[currIndex] == pipline.destReg[pipline.preIssueBuff[i]] or pipline.src2Reg[
+                        currIndex] == pipline.destReg[pipline.preIssueBuff[i]]):
+                        issueMe = False
+                        # break
+
+            for i in range(0, len(pipline.preMemBuff)):
+                if pipline.preMemBuff[i] != -1:
+                    if pipline.src1Reg[currIndex] == pipline.destReg[pipline.preMemBuff[i]] or pipline.src2Reg[
+                        currIndex] == pipline.destReg[pipline.preMemBuff[i]]:
+                        issueMe = False
+                        # break
+            for i in range(0, len(pipline.preALUBuff)):
+                if pipline.preALUBuff[i] != -1:
+                    if pipline.src1Reg[currIndex] == pipline.destReg[pipline.preALUBuff[i]] or pipline.src2Reg[
+                        currIndex] == pipline.destReg[pipline.preALUBuff[i]]:
+                        issueMe = False
+                        # break
+
+            if pipline.postALUBuff[1] != -1:
+                if pipline.src1Reg[currIndex] == pipline.destReg[pipline.postALUBuff[1]] or pipline.src2Reg[
+                    currIndex] == pipline.destReg[pipline.postALUBuff[1]]:
+                    # found RAW in post ALU Buffer
+                    issueMe = False
+            if pipline.postMemBuff[1] != -1:
+                if pipline.src1Reg[currIndex] == pipline.destReg[pipline.postMemBuff[1]] or pipline.src2Reg[
+                    currIndex] == pipline.destReg[pipline.postMemBuff[1]]:
+                    # found RAW in post mem Buffer
+                    issueMe = False
+
+            ## WAW CHECK
+            for i in range(0, current):
+                if pipline.destReg[currIndex] == pipline.destReg[pipline.preIssueBuff[i]]:
+                    issueMe = False
+
+            for i in range(0, len(pipline.preMemBuff)):
+                if pipline.preMemBuff[i] != -1:
+                    if pipline.destReg[currIndex] == pipline.destReg[pipline.preMemBuff[i]]:
+                        # print 'waw fail1'
+                        issueMe = False
+                        # break
+            for i in range(0, len(pipline.preALUBuff)):
+                if pipline.preALUBuff[i] != -1:
+                    if pipline.destReg[currIndex] == pipline.destReg[pipline.preALUBuff[i]]:
+                        print 'waw fail2'
+                        issueMe = False
+                        # break
+            if pipline.postALUBuff[1] != -1:
+                if pipline.destReg[currIndex] == pipline.destReg[pipline.postALUBuff[1]]:
+                    # found WAW in post ALU Buffer
+                    # print 'waw fail3'
+                    issueMe = False
+            if pipline.postMemBuff[1] != -1:
+                if pipline.destReg[currIndex] == pipline.destReg[pipline.postMemBuff[1]]:
+                    # found RAW in post ALU Buffer
+                    # print 'waw fail4'
+                    issueMe = False
+
+            ##ENFORCE ORDERING OF LW SW
+            # Enforce ordering of LWs and SWs so we make sure all stores are done before loads
+            if (pipline.instrName[currIndex] == 'LW'):
+                for i in range(0, current):
+                    if pipline.instrName[pipline.preIssueBuff[i]] == 'SW':
+                        issueMe = False
+
+            ##ISSUE AND MOVE INSTRUCTIONS DOWN ONE LEVEL
+            if issueMe:
+                numIssued += 1
+                if pipline.isMemOp(currIndex):
+                    pipline.preMemBuff[pipline.preMemBuff.index(-1)] = currIndex
+                else:
+                    pipline.preALUBuff[pipline.preALUBuff.index(-1)] = currIndex
+
+                pipline.preIssueBuff[current:3] = pipline.preIssueBuff[current + 1:]
+                pipline.preIssueBuff[3] = -1
+                numInPreIssueBuff -= 1
+            else:
+                current += 1
+
+
+class instructionFetch:
+    cleanup = False
+    noHazards = True
+    wait = -1
+    def __init__(self):
+        pass
+
+    def checkForBranchHazards(self, index):
+        global PC
+        for i in range(4):
+            if pipline.preIssueBuff[i] != -1:
+                if pipline.src1Reg[index] == pipline.destReg[pipline.preIssueBuff[i]]:
+                    self.noHazards = False
+        if (pipline.preMemBuff[0] != -1):
+            if pipline.src1Reg[index] == pipline.destReg[pipline.preMemBuff[0]]:
+                self.noHazards = False
+        if (pipline.preMemBuff[1] != -1):
+            if pipline.src1Reg[index] == pipline.destReg[pipline.preMemBuff[1]]:
+                self.noHazards = False
+        if (pipline.preALUBuff[0] != -1):
+            if pipline.src1Reg[index] == pipline.destReg[pipline.preALUBuff[0]]:
+                self.noHazards = False
+        if (pipline.preALUBuff[1] != -1):
+            if pipline.src1Reg[index] == pipline.destReg[pipline.preALUBuff[1]]:
+                self.noHazards = False
+        if (pipline.postALUBuff[1] != -1):
+            if pipline.src1Reg[index] == pipline.destReg[pipline.postALUBuff[1]]:
+                self.noHazards = False
+        if (pipline.postMemBuff[1] != -1):
+
+            if pipline.src1Reg[index] == pipline.destReg[pipline.postMemBuff[1]]:
+                self.noHazards = False
+
+        if self.noHazards:
+            pass
+        if pipline.instrName[index] == 'BLEZ':
+            if self.noHazards:
+                if pipline.registers[pipline.src1Reg[index]] <= 0:
+                    PC += (pipline.arg3[index] + 4)
+                    # return True
+                else:
+                    PC += 4
+        if pipline.instrName[index] == 'BNE':
+            if pipline.src2Reg[index] in [pipline.destReg[pipline.preALUBuff[0]],
+                                          pipline.destReg[pipline.preMemBuff[0]],
+                                          pipline.destReg[pipline.preMemBuff[1]],
+                                          pipline.destReg[pipline.preALUBuff[1]]]:
+                self.noHazards = False
+            if self.noHazards:
+                if (pipline.registers[pipline.src1Reg[index]] != pipline.registers[pipline.src2Reg[index]]):
+                    PC += pipline.arg3[i]
+                    PC += 4
+                    return True
+                else:
+                    PC += 4
+
+    def run(self):
+        PC =96
+        index = (PC - 96) / 4
+        index1 = index
+        numInPre = 0
+        numIssued = 0
+
+        for i in range(len(pipline.preIssueBuff)):
+            if pipline.preIssueBuff[i] != -1:
+                numInPre += 1
+
+        if not self.cleanup and numInPre < 4:  # 1
+            hit, data1 = pipline.cache.accessMemory(-1, index, 0, 0)
+
+            if hit and (PC % 8 == 0) and not self.cleanup and numInPre < 4:
+                self.noHazards = True
+                if (pipline.instrName[index] in ['BNE', 'BLEZ']):
+                    self.checkForBranchHazards(index)
+                elif (pipline.instrName[index] == 'J'):
+                    PC = pipline.arg1[index]
+                    numIssued += 1
+                    print 'J,  PC NOW ' + str(PC)
+                    # return True
+                elif (pipline.instrName[index] == 'JR'):
+                    PC = pipline.registers[pipline.src1Reg[index]]
+                    # return True
+                elif (pipline.instrName[index] == 'Invalid Instruction'):
+                    PC += 4
+                elif (pipline.instrName[index] == 'BREAK'):
+                    self.cleanup = True
+                    self.wait = 1
+                else:
+                    pipline.preIssueBuff[numInPre] = index
+                    PC += 4
+                    numInPre += 1
+
+                if (((PC - 96) / 4) == index + 1) and numInPre < 4:
+                    index = index + 1
+                    if (pipline.instrName[index] in ['BNE', 'BLEZ']):
+                        self.checkForBranchHazards(index)
+                    elif (pipline.instrName[index] == 'J'):
+                        PC = pipline.arg1[index]
+                        numIssued += 1
+                        # return True
+                    elif (pipline.instrName[index] == 'JR'):
+                        PC = pipline.registers[pipline.src1Reg[index]]
+                        # return True
+                    elif (pipline.instrName[index] == 'Invalid Instruction'):
+                        PC += 4
+                    elif (pipline.instrName[index] == 'BREAK'):
+                        self.cleanup = True
+                        self.wait = 1
+                    else:
+
+                        pipline.preIssueBuff[numInPre] = index
+                        PC += 4
+                        numInPre += 1
+
+            elif hit and not self.cleanup and numInPre < 4:
+                self.noHazards = True
+                if (pipline.instrName[index] in ['BNE', 'BLEZ']):
+                    self.checkForBranchHazards(index)
+                elif (pipline.instrName[index] == 'J'):
+                    PC = pipline.arg1[index]
+                    numIssued += 1
+                    # return True
+                elif (pipline.instrName[index] == 'JR'):
+                    PC = pipline.registers[pipline.src1Reg[index]]
+                    print 'JR1,  PC NOW ' + str(PC)
+                    # return True
+                elif (pipline.instrName[index] == 'Invalid Instruction'):
+                    PC += 4
+                elif (pipline.instrName[index] == 'BREAK'):
+                    self.cleanup = True
+                    self.wait = 1
+                else:
+                    pipline.preIssueBuff[numInPre] = index
+                    PC += 4
+                    numInPre += 1
+
+        if (self.cleanup):
+            for i in range(4):
+                if pipline.preIssueBuff[i] != -1:
+                    return True
+            if (pipline.preMemBuff[0] != -1) or (pipline.preMemBuff[1] != -1) or (pipline.preALUBuff[0] != -1) or (
+                    pipline.preALUBuff[1] != -1):
+                self.wait = 1
+                return True
+            elif (pipline.postMemBuff[1] != -1 or pipline.postALUBuff[1] != -1):
+                self.wait = 1
+                return True
+            elif (pipline.instrName[index1] not in ['BNE', 'BLEZ', 'J', 'JR']):
+                self.wait -= 1
+            # #waits one cycle for stuff to WB clean up, then stops
+            if (self.wait == 1):
+                self.wait -= 1
+                print pipline.preALUBuff
+                print pipline.postALUBuff
+                print pipline.preMemBuff
+                print pipline.postMemBuff
+                return True
+            else:
+                return False
+            if (self.wait == 0):
+                return False
+        if (pipline.cycle > 100):
+            return False
+        return True
+
+
+class cacheUnit:
+    cacheSet = [[[0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],  # valid,dirty,tag,data,data
+                [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],
+                [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],
+                [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]]
+    lruBit = [0, 0, 0, 0]  # one for each SET
+    tagMask = int('00000000000000000000000011111111', 2)
+    # 96 = 01100000 set 0, tag 3
+    setMask = int('0011111', 2)
+    justMissedList = [-1, -1]  # 1st is instruction, second is mem
+
+    def __init__(self):
+        pass
+
+    def flush(self):  # deprecated
+        for s in range(4):
+            if (self.cacheSet[s][0][1] == 1):  # if first block claims dirty
+                wbAddr = self.cacheSet[s][0][2]  # tag of mem
+                wbAddr = (wbAddr << 5) + (s << 3)  # converted to address with s
+                index = (wbAddr - 96 - (4 * pipline.numInstructions)) / 4  # index of mem
+                if (pipline.memory[index] == self.cacheSet[s][0][3] and pipline.memory[index + 1] ==
+                        self.cacheSet[s][0][4]):
+                    # self.cacheSet[s][0][1] = 0 #reset dirty bit
+                    pass
+                else:
+                    pipline.memory[index] = self.cacheSet[s][0][3]  # change value in memory 1st word
+                    pipline.memory[index + 1] = self.cacheSet[s][0][4]  # change value in memory 2nd word
+            elif (self.cacheSet[s][1][1] == 1):
+                print s
+                wbAddr = self.cacheSet[s][1][2]
+                wbAddr = (wbAddr << 5) + (s << 3)
+                index = (wbAddr - 96 - (4 * pipline.numInstructions)) / 4
+                if (pipline.memory[index] == self.cacheSet[s][1][3] and pipline.memory[index + 1] ==
+                        self.cacheSet[s][1][4]):
+                    # self.cacheSet[s][1][1] = 0 #reset dirty bit
+                    pass
+                else:
+                    pipline.memory[index] = self.cacheSet[s][1][3]  # change value in memory 1st word
+                    pipline.memory[index + 1] = self.cacheSet[s][1][4]  # change value in memory 2nd word
+                # self.cacheSet[s][1][1] = 0
+
+    def finalFlush(self):
+        for s in range(4):
+            if (self.cacheSet[s][0][2] == 1):
+                wbAddr = self.cacheSet[s][0][2]  # tag of mem
+                wbAddr = (wbAddr << 5) + (s << 3)  # converted to address with s
+                index = (wbAddr - 96 - (4 * pipline.numInstructions)) / 4  # index of mem
+                self.cacheSet[s][0][1] = 0  # reset dirty bit
+                pipline.memory[index] = self.cacheSet[s][0][3]  # change value in memory 1st word
+                pipline.memory[index + 1] = self.cacheSet[s][0][4]  # change value in memory 2nd word
+            elif (self.cacheSet[s][1][1] == 1):
+                wbAddr = self.cacheSet[s][1][2]
+                wbAddr = (wbAddr << 5) + (s << 3)
+                index = (wbAddr - 96 - (4 * pipline.numInstructions)) / 4
+                self.cacheSet[s][1][1] = 0  # reset dirty bit
+                pipline.memory[index] = self.cacheSet[s][1][3]  # change value in memory 1st word
+                pipline.memory[index + 1] = self.cacheSet[s][1][4]  # change value in memory 2nd word
+                self.cacheSet[s][1][1] = 0
+
+    def accessMemory(self, memIndex, instrIndex, isWriteTomem, dataToWrite):
+        # figure out the alignment
+        if (instrIndex != -1):
+            address = (instrIndex * 4) + 96
+            if (address % 8 == 0):  # address 96+n8
+                dataword = 0  # block 0 was the address
+                address1 = address
+                address2 = address + 4
+            else:  # address != 96+n8
+                dataword = 1  # block 1 was the address
+                address1 = address - 4
+                address2 = address
+            data1 = pipline.instruction[(address1 - 96) / 4]
+            data2 = pipline.instruction[(address2 - 96) / 4]
+        else:
+            address = (memIndex * 4) + 96 + (4 * pipline.numInstructions)
+            if (address % 8 == 0):  # address 96+n8
+                dataword = 0  # block 0 was the address
+                address1 = address
+                address2 = address + 4
+            else:  # address != 96+n8
+                dataword = 1  # block 1 was the address
+                address1 = address - 4
+                address2 = address
+            data1 = pipline.memory[(address1 - (96 + (4 * pipline.numInstructions))) / 4]
+            data2 = pipline.memory[(address2 - (96 + (4 * pipline.numInstructions))) / 4]
+
+        # 4
+        if (isWriteTomem and dataword == 0):
+            data1 = dataToWrite
+        elif (isWriteTomem and dataword == 1):
+            data2 = dataToWrite
+
+        # 5. decode the address of word 0 into cache address
+        tag = (address1 & self.tagMask)
+        setNum = (tag & self.setMask) >> 3
+        tag = tag >> 5
+
+        hit = False
+
+        if (self.cacheSet[setNum][0][2] == tag):
+            assocblock = 0
+            hit = True
+        elif (self.cacheSet[setNum][1][2] == tag):
+            assocblock = 1
+            hit = True
+        print 'hit = ' + str(hit)
+        if (hit and isWriteTomem):
+            # update dirty bit
+            self.cacheSet[setNum][assocblock][1] = 1
+            # update set lru bit
+            self.lruBit[setNum] = (assocblock + 1) % 2
+            # write data to cache
+            self.cacheSet[setNum][assocblock][dataword + 3] = dataToWrite
+            return True, self.cacheSet[setNum][assocblock][dataword + 3]
+        # 8.
+        elif (hit and not isWriteTomem):
+            self.lruBit[setNum] = (assocblock + 1) % 2
+            return True, self.cacheSet[setNum][assocblock][dataword + 3]
+        # 9.
+        elif (not hit):
+            if (address1 not in self.justMissedList):
+                if (memIndex != -1):
+                    self.justMissedList[1] = address1
+                else:
+                    self.justMissedList[0] = address1
+                print('just missed: ' + str(self.justMissedList))
+                return False, 0
+            else:  # second miss
+                if self.cacheSet[setNum][self.lruBit[setNum]][1] == 1:
+                    # write back the memory address asociated with the block
+                    wbAddr = self.cacheSet[setNum][self.lruBit[setNum]][2]  # tag
+
+                    wbAddr = (wbAddr << 5) + (setNum << 3)
+
+                    if (wbAddr >= (pipline.numInstructions * 4) + 96):
+                        pipline.memory[pipline.getIndexOfMemAddress(wbAddr)] = \
+                        self.cacheSet[setNum][self.lruBit[setNum]][3]
+                    if (wbAddr + 4 >= (pipline.numInstructions * 4) + 96):
+                        pipline.memory[pipline.getIndexOfMemAddress(wbAddr + 4)] = \
+                        self.cacheSet[setNum][self.lruBit[setNum]][4]
+                    # now update the cache flag bits
+                self.cacheSet[setNum][self.lruBit[setNum]][0] = 1  # valid  we are writing a block
+                self.cacheSet[setNum][self.lruBit[setNum]][1] = 0  # reset the dirty bit
+                if (isWriteTomem):
+                    self.cacheSet[setNum][self.lruBit[setNum]][
+                        1] = 1  # dirty if is data mem is dirty again, intruction mem never dirty
+                # update both words in the actual cache block in set
+                self.cacheSet[setNum][self.lruBit[setNum]][2] = tag  # tag
+                self.cacheSet[setNum][self.lruBit[setNum]][3] = data1  # data
+                self.cacheSet[setNum][self.lruBit[setNum]][4] = data2  # nextData
+
+                if (memIndex != -1):
+                    if type(data1) == str and type(data2) == str:
+                        if data1[0] == '1':  # if pipline.registers[pipline.src1Reg[i]] < 0:
+                            intdata1 = ((int(data1, 2) ^ 0b11111111111111111111111111111111) + 1) * -1
+                        else:
+                            intdata1 = int(data1, 2)
+
+                        if data2[0] == '1':
+                            intdata2 = ((int(data2, 2) ^ 0b11111111111111111111111111111111) + 1) * -1
+                        else:
+                            intdata2 = int(data2, 2)
+                        self.cacheSet[setNum][self.lruBit[setNum]][3] = intdata1  # nextData
+                        self.cacheSet[setNum][self.lruBit[setNum]][4] = intdata2  # nextData
+                    else:
+                        self.cacheSet[setNum][self.lruBit[setNum]][3] = data1  # nextData
+                        self.cacheSet[setNum][self.lruBit[setNum]][4] = data2
+                        # print 'SETNUM2: ' + str(setNum)
+                self.lruBit[setNum] = (self.lruBit[setNum] + 1) % 2  # set lru to show block is recently used
+                print 'from the last return'
+                return [True, self.cacheSet[setNum][(self.lruBit[setNum] + 1) % 2][
+                    dataword + 3]]  # dataword was the actual word thatgenerated the hit
+
+class simClass(object):
+    instruction = []
+    opcode = []
+    memory = []
+    validInstr = []
+    address = []
+    numInstructions = 0
+    instrName = []
+    arg1 = []
+    arg2 = []
+    arg3 = []
+    destReg = []
+    src1Reg = []
+    src2Reg = []
+    cycle = 1
+    registers = []
+    preMemBuff = [-1, -1]  # first number is index, second is index
+    postMemBuff = [-1, -1]  # first number is value, scond is instruction index
+    preALUBuff = [-1, -1]  # first number is index, second is index, 2 instructions
+    postALUBuff = [-1, -1]  # first number is value, second is instr index
+    preIssueBuff = [-1, -1, -1, -1]  # list of 4 instruction indices
+    WB = writeBack()
+    ALU = arithmeticLogicUnit()
+    MEM = memWrite()
+    issue = issueUnit()
+    fetch = instructionFetch()
+    cache = cacheUnit()
+
+    def __init__(self, instrs, opcodes, mem, valids, addrs, args1, args2, args3, numInstrs, dest, src1, src2, instrName, pipelineoutput):
+        self.instruction = instrs
+        self.opcode = opcodes
+        self.memory = mem
+        self.validInstr = valids
+        self.address = addrs
+        self.numInstructions = numInstrs
+        self.args1 = args1
+        self.args2 = args2
+        self.args3 = args3
+        self.destReg = dest
+        self.src1Reg = src1
+        self.src2Reg = src2
+        self.instrName = instrName
+        self.pipelineoutput = pipelineoutput
+
+    def getIndexOfMemAddress(self, bin_addr):
+        return ((bin_addr - (96 + (4 * self.numInstructions))) / 4)
+
+    def isMemOp(self, index):
+        if self.instrName[index] in ['LW', 'SW']:
+            return True
+        return False
+
+    def run( self):
+        for x in range(0,32):
+            self.registers.append(0)
+        print(len(self.registers))
+        go = True
+        while go:
+            self.WB.run()
+            self.ALU.run()
+            self.MEM.run()
+            self.issue.run()
+            go = self.fetch.run()
+
+            if not go:
+                self.cache.finalFlush()
+            self.printState()
+            self.cycle+=1
+
+    def printState(self):
+        global pipelineoutput
+
+        formattedInstr = ['', '', '', '', '', '', '', '', '', '']
+        indices = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+        for i in range(4):
+            indices[i] = ((self.preIssueBuff[i]))
+
+        indices[4] = self.preALUBuff[0]
+        indices[5] = self.preALUBuff[1]
+        indices[6] = self.postALUBuff[1]
+        indices[7] = self.preMemBuff[0]
+        indices[8] = self.preMemBuff[1]
+        indices[9] = self.postMemBuff[1]
+
+        for i in range(0, 10):
+
+            if indices[i] > -1:
+                if instrName[indices[i]] in ['MOVZ', 'ADD', 'SUB', 'AND', 'OR', 'MUL']:
+                    formattedInstr[i] = '\t[' + self.instrName[indices[i]] + '\tR' + str(
+                        self.args3[indices[i]]) + ', R' + str(self.args1[indices[i]]) + ', R' + str(
+                        self.args2[indices[i]]) + ']'
+                elif instrName[indices[i]] in ['SLL', 'SRL']:
+                    formattedInstr[i] = '\t[' + self.instrName[indices[i]] + '\tR' + str(
+                        self.args1[indices[i]]) + ', R' + str(self.args2[indices[i]]) + ', #' + str(
+                        self.args3[indices[i]]) + ']'
+                elif instrName[indices[i]] in ['BNE', 'ADDI']:
+                    formattedInstr[i] = '\t[' + self.instrName[indices[i]] + '\tR' + str(
+                        self.args2[indices[i]]) + ', R' + str(self.args1[indices[i]]) + ', #' + str(
+                        self.args3[indices[i]]) + ']'
+                elif instrName[indices[i]] in ['SW', 'LW']:
+                    formattedInstr[i] = '\t[' + self.instrName[indices[i]] + '\tR' + str(
+                        self.args2[indices[i]]) + ', ' + str(self.args3[indices[i]]) + '(R' + str(
+                        self.args1[indices[i]]) + ')' + ']'
+                elif instrName[indices[i]] == 'BLEZ':
+                    formattedInstr[i] = '\t[' + 'BLEZ\tR' + str(self.args1[indices[i]]) + ', #' + str(
+                        args3[indices[i]]) + ']'
+                elif instrName[indices[i]] == 'J':
+                    formattedInstr[i] = '\t[' + 'J\t#' + str(self.args1[indices[i]]) + ']'
+                elif instrName[indices[i]] == 'JR':
+                    formattedInstr[i] = '\t[' + 'JR\tR' + str(self.args1[indices[i]]) + ']'
+                elif instrName[indices[i]] in ['NOP', 'BREAK', 'Invalid Instruction']:
+                    formattedInstr[i] = '\t[' + self.instrName[indices[i]] + ']'
+            else:
+                formattedInstr[i] = ''
+
+        pipelineoutput.write('--------------------\n'
+                             + 'Cycle:' + str(self.cycle)
+                             + '\n\nPre-Issue Buffer:\n'
+                             + '\tEntry 0:' + formattedInstr[0] + '\n'
+                             + '\tEntry 1:' + formattedInstr[1] + '\n'
+                             + '\tEntry 2:' + formattedInstr[2] + '\n'
+                             + '\tEntry 3:' + formattedInstr[3] + '\n'
+                             + 'Pre_ALU Queue:\n'
+                             + '\tEntry 0:' + formattedInstr[4] + '\n'
+                             + '\tEntry 1:' + formattedInstr[5] + '\n'
+                             + 'Post_ALU Queue:\n'
+                             + '\tEntry 0:' + formattedInstr[6] + '\n'
+                             + 'Pre_MEM Queue:\n'
+                             + '\tEntry 0:' + formattedInstr[7] + '\n'
+                             + '\tEntry 1:' + formattedInstr[8] + '\n'
+                             + 'Post_MEM Queue:\n'
+                             + '\tEntry 0:' + formattedInstr[9] + '\n')
+
+        pipelineoutput.write('\nRegisters'
+                             + '\nR00:\t' + str(self.registers[0]) + '\t' + str(self.registers[1]) + '\t' + str(self.registers[2]) + '\t' + str(
+            self.registers[3])
+                             + '\t' + str(self.registers[4]) + '\t' + str(self.registers[5]) + '\t' + str(self.registers[6]) + '\t' + str(
+            self.registers[7])
+                             + '\nR08:\t' + str(self.registers[8]) + '\t' + str(self.registers[9]) + '\t' + str(
+            self.registers[10]) + '\t' + str(self.registers[11])
+                             + '\t' + str(self.registers[12]) + '\t' + str(self.registers[13]) + '\t' + str(self.registers[14]) + '\t' + str(
+            self.registers[15])
+                             + '\nR16:\t' + str(self.registers[16]) + '\t' + str(self.registers[17]) + '\t' + str(
+            self.registers[18]) + '\t' + str(self.registers[19])
+                             + '\t' + str(self.registers[20]) + '\t' + str(self.registers[21]) + '\t' + str(self.registers[22]) + '\t' + str(
+            self.registers[23])
+                             + '\nR24:\t' + str(self.registers[24]) + '\t' + str(self.registers[25]) + '\t' + str(
+            self.registers[26]) + '\t' + str(self.registers[27])
+                             + '\t' + str(self.registers[28]) + '\t' + str(self.registers[29]) + '\t' + str(self.registers[30]) + '\t' + str(
+            self.registers[31])
+                             + '\n')
+
+        pipelineoutput.write('\nCache\n')
+
+        for i in range(4):
+            pipelineoutput.write('Set ' + str(i) + ': LRU=' + str(self.cache.lruBit[i]) + '\n')
+
+            for j in range(2):
+                pipelineoutput.write('\tEntry ' + str(j) + ':[(' + str(self.cache.cacheSet[i][j][0]) + ','
+                                     + str(self.cache.cacheSet[i][j][1]) + ',' + str(self.cache.cacheSet[i][j][2])
+                                     + ')<' + str(self.cache.cacheSet[i][j][3]) + ',' + str(
+                    self.cache.cacheSet[i][j][4])
+                                     + '>]\n')
+
+        pipelineoutput.write('\nData')
+        dataAddress = 96 + (self.numInstructions * 4)
+        i = 0
+
+        while i < len(self.memory):
+            if (i % 8 == 0 and i == 0):
+                pipelineoutput.write('\n' + str(dataAddress) + ':' + str(self.memory[i])),
+            elif (i % 8 == 0 and not i == 0):
+                pipelineoutput.write('\n' + str(dataAddress) + ':' + str(self.memory[i])),
+            else:  # not a multiple of 8
+                pipelineoutput.write('\t' + str(self.memory[i])),
+            i += 1
+            dataAddress += 4
+        pipelineoutput.write('\n')
+
+dissasembler1 = Dissasembler()
+inputfilename = ""
+outputfilename = ""
+for i in range(len(sys.argv)):
+    if (sys.argv[i] == '-i' and i < (len(sys.argv) - 1)):#check for input file name
+        inputfilename = sys.argv[i + 1]
+    elif (sys.argv[i] == '-o' and i < (len(sys.argv) - 1)):#check for output file name
+        outputfilename = sys.argv[i + 1]
+        outputfilename2 = outputfilename + "_pipeline.txt"
+        outputfilename = outputfilename + "_dis.txt"
+if not inputfilename:#default file names if not given
+    inputfilename = "test1_bin.txt"
+if not outputfilename:
+    outputfilename = "team2_out_dis.txt"
+    outputfilename2 = "team2_out_pipeline.txt"
+dissasembler1.dirty_work(inputfilename, outputfilename)
+pipelineoutput = open(outputfilename2, 'w')
+pipline = simClass(instruction, opcodelist, datalist, validInstr, address, arg1, arg2, arg3, numInstrs,
+destReg, src1Reg, src2Reg, instrName, pipelineoutput)
+pipline.run()
