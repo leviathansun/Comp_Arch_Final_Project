@@ -73,7 +73,6 @@ destReg = []
 src1Reg = []
 src2Reg = []
 invalid = -1
-PC = 96
 numInstrs = 0
 
 
@@ -86,6 +85,7 @@ class Dissasembler(object):
     def dirty_work(self, input_name, output_name):
         global invalid
         global numInstrs
+        PC = 96
         input_file = open(input_name, "r")
         output_file = open(output_name, "w")
         counter = 0
@@ -185,7 +185,7 @@ class Dissasembler(object):
                             output_file.write('%s' % (function_name))
                             output_file.write('\t' + rd + ', ' + rs + ', ' + rt)
 
-                            instrName.append('function_name')
+                            instrName.append(function_name)
                             address.append(PC + (counter * 4))
                             arg1.append(int(group1, 2))
                             arg2.append(int(group2, 2))
@@ -255,7 +255,7 @@ class Dissasembler(object):
                                     invalid -= 1
                                     src1Reg.append(arg2[counter])
                                     src2Reg.append(arg1[counter])
-                                elif funct == 11:
+                                elif funct == 3:
                                     destReg.append(arg2[counter])
                                     src1Reg.append(arg1[counter])
                                     src2Reg.append(invalid)
@@ -316,7 +316,7 @@ class Dissasembler(object):
                             arg1.append(int(group1, 2))
                             arg2.append(int(group2, 2))
                             arg3.append(int(group3, 2))
-                            arg3[counter] = immediate
+                            arg3[counter] = int(immediate)
                             destReg.append(arg2[counter])
                             src1Reg.append(arg1[counter])
                             src2Reg.append(invalid)
@@ -337,11 +337,6 @@ class Dissasembler(object):
         input_file.close()
         output_file.close()
 
-        #debug list
-#        for i in range(len(assembledlist)):
-#            for j in range(len(assembledlist[i])):
-#               print(assembledlist[i][j])
-#            print('\n')
 
     # method used to compute the 2's compliment
     def twos_comp(self, number, bitlength):
@@ -369,14 +364,14 @@ class arithmeticLogicUnit:
 
     def run(self):
         if (pipline.preALUBuff[0] != -1):
-            counter = pipline.preALUBuff[0]
-            pipline.postALUBuff[1] = counter
+            i = pipline.preALUBuff[0]
+            pipline.postALUBuff[1] = i
             if (pipline.instrName[i] == 'SLL'):
-                pipline.postALUBuff[0] = pipline.registers[pipline.src1Reg[i]] * pow(2, pipline.arg3[i])
+                pipline.postALUBuff[0] = pipline.registers[pipline.src1Reg[i]] * pow(2, pipline.args3[i])
             elif (pipline.instrName[i] == 'SRL'):
-                pipline.postALUBuff[0] = pipline.registers[pipline.src1Reg[i]] / pow(2, pipline.arg3[i])
+                pipline.postALUBuff[0] = pipline.registers[pipline.src1Reg[i]] / pow(2, pipline.args3[i])
             elif (pipline.instrName[i] == 'ADDI'):
-                pipline.postALUBuff[0] = int(pipline.registers[pipline.src1Reg[i]]) + pipline.arg3[i]
+                pipline.postALUBuff[0] = int(pipline.registers[pipline.src1Reg[i]]) + pipline.args3[i]
             elif (pipline.instrName[i] == 'MUL'):
                 pipline.postALUBuff[0] = pipline.registers[pipline.src1Reg[i] * pipline.registers[pipline.src2Reg[i]]]
             elif (pipline.instrName[i] == 'OR'):
@@ -403,11 +398,11 @@ class memWrite:
             i = pipline.preMemBuff[0]
             hit = False
             if(pipline.instrName[i] == 'LW'):
-                address = pipline.arg3[i] + pipline.registers[pipline.src1Reg[i]]
+                address = pipline.args3[i] + pipline.registers[pipline.src1Reg[i]]
                 hit, data = pipline.cache.accessMemory(pipline.getIndexOfMemAddress(address),-1,False,0)
 
             elif(pipline.instrName[i] == 'SW'):
-                address = pipline.arg3[i] + pipline.registers[pipline.src2Reg[i]]
+                address = pipline.args3[i] + pipline.registers[pipline.src2Reg[i]]
                 hit, data = pipline.cache.accessMemory(pipline.getIndexOfMemAddress(address), -1, True, pipline.registers[pipline.src1Reg[i]])
 
             if(hit):
@@ -439,13 +434,10 @@ class issueUnit:
         while (numIssued < 2 and numInPreIssueBuff > 0 and current < numInPreIssueBuff):
             issueMe = True
             currIndex = pipline.preIssueBuff[current]
-            print('issue checking for: ' + pipline.instrName[currIndex])
             ## CHECK FOR ROOM IN BUFFERS
             if pipline.isMemOp(currIndex) and not -1 in pipline.preMemBuff:
-                print 'pre mem full'
                 issueMe = False
             elif not pipline.isMemOp(currIndex) and not -1 in pipline.preALUBuff:
-                print 'pre alu full'
                 issueMe = False
 
             ## WAR CHECK
@@ -460,7 +452,6 @@ class issueUnit:
                     if pipline.preMemBuff[i] != -1:
                         if pipline.destReg[currIndex] == pipline.src1Reg[pipline.preMemBuff[i]] or pipline.destReg[
                             currIndex] == pipline.src2Reg[pipline.preMemBuff[i]]:
-                            print 'war fail2'
                             issueMe = False
                             # break
             else:  # is ALU op
@@ -468,7 +459,6 @@ class issueUnit:
                     if pipline.preALUBuff[i] != -1:
                         if pipline.destReg[currIndex] == pipline.src1Reg[pipline.preALUBuff[i]] or pipline.destReg[
                             currIndex] == pipline.src2Reg[pipline.preALUBuff[i]]:
-                            print 'war fail3'
                             issueMe = False
                             # break
             ## RAW CHECK
@@ -495,12 +485,10 @@ class issueUnit:
             if pipline.postALUBuff[1] != -1:
                 if pipline.src1Reg[currIndex] == pipline.destReg[pipline.postALUBuff[1]] or pipline.src2Reg[
                     currIndex] == pipline.destReg[pipline.postALUBuff[1]]:
-                    # found RAW in post ALU Buffer
                     issueMe = False
             if pipline.postMemBuff[1] != -1:
                 if pipline.src1Reg[currIndex] == pipline.destReg[pipline.postMemBuff[1]] or pipline.src2Reg[
                     currIndex] == pipline.destReg[pipline.postMemBuff[1]]:
-                    # found RAW in post mem Buffer
                     issueMe = False
 
             ## WAW CHECK
@@ -511,34 +499,23 @@ class issueUnit:
             for i in range(0, len(pipline.preMemBuff)):
                 if pipline.preMemBuff[i] != -1:
                     if pipline.destReg[currIndex] == pipline.destReg[pipline.preMemBuff[i]]:
-                        # print 'waw fail1'
                         issueMe = False
-                        # break
             for i in range(0, len(pipline.preALUBuff)):
                 if pipline.preALUBuff[i] != -1:
                     if pipline.destReg[currIndex] == pipline.destReg[pipline.preALUBuff[i]]:
-                        print 'waw fail2'
                         issueMe = False
-                        # break
             if pipline.postALUBuff[1] != -1:
                 if pipline.destReg[currIndex] == pipline.destReg[pipline.postALUBuff[1]]:
-                    # found WAW in post ALU Buffer
-                    # print 'waw fail3'
                     issueMe = False
             if pipline.postMemBuff[1] != -1:
                 if pipline.destReg[currIndex] == pipline.destReg[pipline.postMemBuff[1]]:
-                    # found RAW in post ALU Buffer
-                    # print 'waw fail4'
                     issueMe = False
 
-            ##ENFORCE ORDERING OF LW SW
-            # Enforce ordering of LWs and SWs so we make sure all stores are done before loads
             if (pipline.instrName[currIndex] == 'LW'):
                 for i in range(0, current):
                     if pipline.instrName[pipline.preIssueBuff[i]] == 'SW':
                         issueMe = False
 
-            ##ISSUE AND MOVE INSTRUCTIONS DOWN ONE LEVEL
             if issueMe:
                 numIssued += 1
                 if pipline.isMemOp(currIndex):
@@ -561,7 +538,6 @@ class instructionFetch:
         pass
 
     def checkForBranchHazards(self, index):
-        global PC
         for i in range(4):
             if pipline.preIssueBuff[i] != -1:
                 if pipline.src1Reg[index] == pipline.destReg[pipline.preIssueBuff[i]]:
@@ -591,10 +567,9 @@ class instructionFetch:
         if pipline.instrName[index] == 'BLEZ':
             if self.noHazards:
                 if pipline.registers[pipline.src1Reg[index]] <= 0:
-                    PC += (pipline.arg3[index] + 4)
-                    # return True
+                    pipline.PC += (pipline.args3[index] + 4)
                 else:
-                    PC += 4
+                    pipline.PC += 4
         if pipline.instrName[index] == 'BNE':
             if pipline.src2Reg[index] in [pipline.destReg[pipline.preALUBuff[0]],
                                           pipline.destReg[pipline.preMemBuff[0]],
@@ -603,15 +578,14 @@ class instructionFetch:
                 self.noHazards = False
             if self.noHazards:
                 if (pipline.registers[pipline.src1Reg[index]] != pipline.registers[pipline.src2Reg[index]]):
-                    PC += pipline.arg3[i]
-                    PC += 4
+                    pipline.PC += pipline.args3[i]
+                    pipline.PC += 4
                     return True
                 else:
-                    PC += 4
+                    pipline.PC += 4
 
     def run(self):
-        PC =96
-        index = (PC - 96) / 4
+        index = (pipline.PC - 96) / 4
         index1 = index
         numInPre = 0
         numIssued = 0
@@ -623,48 +597,43 @@ class instructionFetch:
         if not self.cleanup and numInPre < 4:  # 1
             hit, data1 = pipline.cache.accessMemory(-1, index, 0, 0)
 
-            if hit and (PC % 8 == 0) and not self.cleanup and numInPre < 4:
+            if hit and (pipline.PC % 8 == 0) and not self.cleanup and numInPre < 4:
                 self.noHazards = True
                 if (pipline.instrName[index] in ['BNE', 'BLEZ']):
                     self.checkForBranchHazards(index)
                 elif (pipline.instrName[index] == 'J'):
-                    PC = pipline.arg1[index]
+                    pipline.PC = pipline.args1[index]
                     numIssued += 1
-                    print 'J,  PC NOW ' + str(PC)
-                    # return True
                 elif (pipline.instrName[index] == 'JR'):
-                    PC = pipline.registers[pipline.src1Reg[index]]
-                    # return True
+                    pipline.PC = pipline.registers[pipline.src1Reg[index]]
                 elif (pipline.instrName[index] == 'Invalid Instruction'):
-                    PC += 4
+                    pipline.PC += 4
                 elif (pipline.instrName[index] == 'BREAK'):
                     self.cleanup = True
                     self.wait = 1
                 else:
                     pipline.preIssueBuff[numInPre] = index
-                    PC += 4
+                    pipline.PC += 4
                     numInPre += 1
 
-                if (((PC - 96) / 4) == index + 1) and numInPre < 4:
+                if (((pipline.PC - 96) / 4) == index + 1) and numInPre < 4:
                     index = index + 1
                     if (pipline.instrName[index] in ['BNE', 'BLEZ']):
                         self.checkForBranchHazards(index)
                     elif (pipline.instrName[index] == 'J'):
-                        PC = pipline.arg1[index]
+                        pipline.PC = pipline.args1[index]
                         numIssued += 1
-                        # return True
                     elif (pipline.instrName[index] == 'JR'):
-                        PC = pipline.registers[pipline.src1Reg[index]]
-                        # return True
+                        pipline.PC = pipline.registers[pipline.src1Reg[index]]
                     elif (pipline.instrName[index] == 'Invalid Instruction'):
-                        PC += 4
+                        pipline.PC += 4
                     elif (pipline.instrName[index] == 'BREAK'):
                         self.cleanup = True
                         self.wait = 1
                     else:
 
                         pipline.preIssueBuff[numInPre] = index
-                        PC += 4
+                        pipline.PC += 4
                         numInPre += 1
 
             elif hit and not self.cleanup and numInPre < 4:
@@ -672,21 +641,18 @@ class instructionFetch:
                 if (pipline.instrName[index] in ['BNE', 'BLEZ']):
                     self.checkForBranchHazards(index)
                 elif (pipline.instrName[index] == 'J'):
-                    PC = pipline.arg1[index]
+                    pipline.PC = pipline.args1[index]
                     numIssued += 1
-                    # return True
                 elif (pipline.instrName[index] == 'JR'):
-                    PC = pipline.registers[pipline.src1Reg[index]]
-                    print 'JR1,  PC NOW ' + str(PC)
-                    # return True
+                    pipline.PC = pipline.registers[pipline.src1Reg[index]]
                 elif (pipline.instrName[index] == 'Invalid Instruction'):
-                    PC += 4
+                    pipline.PC += 4
                 elif (pipline.instrName[index] == 'BREAK'):
                     self.cleanup = True
                     self.wait = 1
                 else:
                     pipline.preIssueBuff[numInPre] = index
-                    PC += 4
+                    pipline.PC += 4
                     numInPre += 1
 
         if (self.cleanup):
@@ -702,13 +668,8 @@ class instructionFetch:
                 return True
             elif (pipline.instrName[index1] not in ['BNE', 'BLEZ', 'J', 'JR']):
                 self.wait -= 1
-            # #waits one cycle for stuff to WB clean up, then stops
             if (self.wait == 1):
                 self.wait -= 1
-                print pipline.preALUBuff
-                print pipline.postALUBuff
-                print pipline.preMemBuff
-                print pipline.postMemBuff
                 return True
             else:
                 return False
@@ -719,46 +680,20 @@ class instructionFetch:
         return True
 
 
+
 class cacheUnit:
-    cacheSet = [[[0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],  # valid,dirty,tag,data,data
+    cacheSet = [[[0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],
                 [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],
                 [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],
                 [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]]
-    lruBit = [0, 0, 0, 0]  # one for each SET
+    lruBit = [0, 0, 0, 0]
     tagMask = int('00000000000000000000000011111111', 2)
-    # 96 = 01100000 set 0, tag 3
     setMask = int('0011111', 2)
-    justMissedList = [-1, -1]  # 1st is instruction, second is mem
+    justMissedList = [-1, -1]
 
     def __init__(self):
         pass
 
-    def flush(self):  # deprecated
-        for s in range(4):
-            if (self.cacheSet[s][0][1] == 1):  # if first block claims dirty
-                wbAddr = self.cacheSet[s][0][2]  # tag of mem
-                wbAddr = (wbAddr << 5) + (s << 3)  # converted to address with s
-                index = (wbAddr - 96 - (4 * pipline.numInstructions)) / 4  # index of mem
-                if (pipline.memory[index] == self.cacheSet[s][0][3] and pipline.memory[index + 1] ==
-                        self.cacheSet[s][0][4]):
-                    # self.cacheSet[s][0][1] = 0 #reset dirty bit
-                    pass
-                else:
-                    pipline.memory[index] = self.cacheSet[s][0][3]  # change value in memory 1st word
-                    pipline.memory[index + 1] = self.cacheSet[s][0][4]  # change value in memory 2nd word
-            elif (self.cacheSet[s][1][1] == 1):
-                print s
-                wbAddr = self.cacheSet[s][1][2]
-                wbAddr = (wbAddr << 5) + (s << 3)
-                index = (wbAddr - 96 - (4 * pipline.numInstructions)) / 4
-                if (pipline.memory[index] == self.cacheSet[s][1][3] and pipline.memory[index + 1] ==
-                        self.cacheSet[s][1][4]):
-                    # self.cacheSet[s][1][1] = 0 #reset dirty bit
-                    pass
-                else:
-                    pipline.memory[index] = self.cacheSet[s][1][3]  # change value in memory 1st word
-                    pipline.memory[index + 1] = self.cacheSet[s][1][4]  # change value in memory 2nd word
-                # self.cacheSet[s][1][1] = 0
 
     def finalFlush(self):
         for s in range(4):
@@ -774,6 +709,7 @@ class cacheUnit:
                 wbAddr = (wbAddr << 5) + (s << 3)
                 index = (wbAddr - 96 - (4 * pipline.numInstructions)) / 4
                 self.cacheSet[s][1][1] = 0  # reset dirty bit
+                self.memoryoverflow(index + 1)
                 pipline.memory[index] = self.cacheSet[s][1][3]  # change value in memory 1st word
                 pipline.memory[index + 1] = self.cacheSet[s][1][4]  # change value in memory 2nd word
                 self.cacheSet[s][1][1] = 0
@@ -782,6 +718,7 @@ class cacheUnit:
         # figure out the alignment
         if (instrIndex != -1):
             address = (instrIndex * 4) + 96
+            print address
             if (address % 8 == 0):  # address 96+n8
                 dataword = 0  # block 0 was the address
                 address1 = address
@@ -802,8 +739,11 @@ class cacheUnit:
                 dataword = 1  # block 1 was the address
                 address1 = address - 4
                 address2 = address
-            data1 = pipline.memory[(address1 - (96 + (4 * pipline.numInstructions))) / 4]
-            data2 = pipline.memory[(address2 - (96 + (4 * pipline.numInstructions))) / 4]
+            addresscheck1 = (address1 - (96 + (4 * pipline.numInstructions))) / 4
+            addresscheck2 = (address2 - (96 + (4 * pipline.numInstructions))) / 4
+            self.memoryoverflow(max(addresscheck1, addresscheck2))
+            data1 = pipline.memory[addresscheck1]
+            data2 = pipline.memory[addresscheck2]
 
         # 4
         if (isWriteTomem and dataword == 0):
@@ -824,7 +764,6 @@ class cacheUnit:
         elif (self.cacheSet[setNum][1][2] == tag):
             assocblock = 1
             hit = True
-        print 'hit = ' + str(hit)
         if (hit and isWriteTomem):
             # update dirty bit
             self.cacheSet[setNum][assocblock][1] = 1
@@ -844,7 +783,6 @@ class cacheUnit:
                     self.justMissedList[1] = address1
                 else:
                     self.justMissedList[0] = address1
-                print('just missed: ' + str(self.justMissedList))
                 return False, 0
             else:  # second miss
                 if self.cacheSet[setNum][self.lruBit[setNum]][1] == 1:
@@ -886,11 +824,15 @@ class cacheUnit:
                     else:
                         self.cacheSet[setNum][self.lruBit[setNum]][3] = data1  # nextData
                         self.cacheSet[setNum][self.lruBit[setNum]][4] = data2
-                        # print 'SETNUM2: ' + str(setNum)
                 self.lruBit[setNum] = (self.lruBit[setNum] + 1) % 2  # set lru to show block is recently used
-                print 'from the last return'
                 return [True, self.cacheSet[setNum][(self.lruBit[setNum] + 1) % 2][
                     dataword + 3]]  # dataword was the actual word thatgenerated the hit
+
+    def memoryoverflow(self, memcheck):
+     if memcheck >= len(pipline.memory):
+         pipline.address.append(96 + (len(pipline.address) * 4))
+         for x in range(0, 7):
+             datalist.append(0)
 
 class simClass(object):
     instruction = []
@@ -919,6 +861,7 @@ class simClass(object):
     issue = issueUnit()
     fetch = instructionFetch()
     cache = cacheUnit()
+    PC = 96
 
     def __init__(self, instrs, opcodes, mem, valids, addrs, args1, args2, args3, numInstrs, dest, src1, src2, instrName, pipelineoutput):
         self.instruction = instrs
@@ -947,7 +890,6 @@ class simClass(object):
     def run( self):
         for x in range(0,32):
             self.registers.append(0)
-        print(len(self.registers))
         go = True
         while go:
             self.WB.run()
@@ -960,7 +902,6 @@ class simClass(object):
                 self.cache.finalFlush()
             self.printState()
             self.cycle+=1
-
     def printState(self):
         global pipelineoutput
 
