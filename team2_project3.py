@@ -567,7 +567,7 @@ class instructionFetch:
         if pipline.instrName[index] == 'BLEZ':
             if self.noHazards:
                 if pipline.registers[pipline.src1Reg[index]] <= 0:
-                    pipline.PC += (pipline.args3[index] + 4)
+                    pipline.PC += (pipline.args3[index])
                 else:
                     pipline.PC += 4
         if pipline.instrName[index] == 'BNE':
@@ -718,7 +718,6 @@ class cacheUnit:
         # figure out the alignment
         if (instrIndex != -1):
             address = (instrIndex * 4) + 96
-            print address
             if (address % 8 == 0):  # address 96+n8
                 dataword = 0  # block 0 was the address
                 address1 = address
@@ -904,11 +903,10 @@ class simClass(object):
             self.cycle+=1
     def printState(self):
         global pipelineoutput
-
         formattedInstr = ['', '', '', '', '', '', '', '', '', '']
         indices = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
         for i in range(4):
-            indices[i] = ((self.preIssueBuff[i]))
+            indices[i] = (self.preIssueBuff[i])
 
         indices[4] = self.preALUBuff[0]
         indices[5] = self.preALUBuff[1]
@@ -918,7 +916,7 @@ class simClass(object):
         indices[9] = self.postMemBuff[1]
 
         for i in range(0, 10):
-
+            #print instrName[i]
             if indices[i] > -1:
                 if instrName[indices[i]] in ['MOVZ', 'ADD', 'SUB', 'AND', 'OR', 'MUL']:
                     formattedInstr[i] = '\t[' + self.instrName[indices[i]] + '\tR' + str(
@@ -938,7 +936,7 @@ class simClass(object):
                         self.args1[indices[i]]) + ')' + ']'
                 elif instrName[indices[i]] == 'BLEZ':
                     formattedInstr[i] = '\t[' + 'BLEZ\tR' + str(self.args1[indices[i]]) + ', #' + str(
-                        args3[indices[i]]) + ']'
+                        self.args3[indices[i]]) + ']'
                 elif instrName[indices[i]] == 'J':
                     formattedInstr[i] = '\t[' + 'J\t#' + str(self.args1[indices[i]]) + ']'
                 elif instrName[indices[i]] == 'JR':
