@@ -712,7 +712,7 @@ class instructionFetch:
      while memcheck >= len(pipline.memory):
          pipline.address.append(96 + (len(pipline.address) * 4))
          for x in range(0, 7):
-             datalist.append(0)
+             pipline.memory.append(0)
 
 
 class cacheUnit:
