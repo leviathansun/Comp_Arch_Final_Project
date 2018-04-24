@@ -760,7 +760,7 @@ class cacheUnit:
                 dataword = 1  # block 1 was the address
                 address1 = address - 4
                 address2 = address
-            print instrIndex
+            #print instrIndex
             data1 = pipline.instruction[(address1 - 96) / 4]
             data2 = pipline.instruction[(address2 - 96) / 4]
         else:
