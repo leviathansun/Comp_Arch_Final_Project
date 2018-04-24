@@ -382,6 +382,8 @@ class arithmeticLogicUnit:
                 pipline.postALUBuff[0] = pipline.registers[pipline.src1Reg[i] - pipline.registers[pipline.src2Reg[i]]]
             elif (pipline.instrName[i] == 'ADD'):
                 pipline.postALUBuff[0] = pipline.registers[pipline.src1Reg[i]] + pipline.registers[pipline.src2Reg[i]]
+            elif (pipline.instrName[i] == 'XOR'):
+                pipline.postALUBuff[0] = pipline.registers[pipline.src1Reg[i]] ^ pipline.registers[pipline.src2Reg[i]]
             elif (pipline.instrName[i] == 'MOVZ'):
                 if (pipline.src2Reg[i] == 0):
                     pipline.postALUBuff[0] = pipline.src1Reg[i]
@@ -611,6 +613,12 @@ class instructionFetch:
                 elif (pipline.instrName[index] == 'BREAK'):
                     self.cleanup = True
                     self.wait = 1
+                elif (pipline.instrName[index] == 'SW'):
+                    address = pipline.args3[index] + pipline.registers[pipline.src2Reg[index]]
+                    self.memoryoverflow(address)
+                    pipline.preIssueBuff[numInPre] = index
+                    pipline.PC += 4
+                    numInPre += 1
                 else:
                     pipline.preIssueBuff[numInPre] = index
                     pipline.PC += 4
@@ -630,6 +638,12 @@ class instructionFetch:
                     elif (pipline.instrName[index] == 'BREAK'):
                         self.cleanup = True
                         self.wait = 1
+                    elif (pipline.instrName[index] == 'SW'):
+                        address = pipline.args3[index] + pipline.registers[pipline.src2Reg[index]]
+                        self.memoryoverflow(address)
+                        pipline.preIssueBuff[numInPre] = index
+                        pipline.PC += 4
+                        numInPre += 1
                     else:
 
                         pipline.preIssueBuff[numInPre] = index
@@ -650,6 +664,12 @@ class instructionFetch:
                 elif (pipline.instrName[index] == 'BREAK'):
                     self.cleanup = True
                     self.wait = 1
+                elif (pipline.instrName[index] == 'SW'):
+                    address = pipline.args3[index] + pipline.registers[pipline.src2Reg[index]]
+                    self.memoryoverflow(address)
+                    pipline.preIssueBuff[numInPre] = index
+                    pipline.PC += 4
+                    numInPre += 1
                 else:
                     pipline.preIssueBuff[numInPre] = index
                     pipline.PC += 4
@@ -671,6 +691,12 @@ class instructionFetch:
             if (self.wait == 1):
                 self.wait -= 1
                 return True
+            elif (pipline.instrName[index] == 'SW'):
+                address = pipline.args3[index] + pipline.registers[pipline.src2Reg[index]]
+                self.memoryoverflow(address)
+                pipline.preIssueBuff[numInPre] = index
+                pipline.PC += 4
+                numInPre += 1
             else:
                 return False
             if (self.wait == 0):
@@ -679,6 +705,11 @@ class instructionFetch:
             return False
         return True
 
+    def memoryoverflow(self, memcheck):
+     while memcheck >= len(pipline.memory):
+         pipline.address.append(96 + (len(pipline.address) * 4))
+         for x in range(0, 7):
+             datalist.append(0)
 
 
 class cacheUnit:
@@ -828,7 +859,7 @@ class cacheUnit:
                     dataword + 3]]  # dataword was the actual word thatgenerated the hit
 
     def memoryoverflow(self, memcheck):
-     if memcheck >= len(pipline.memory):
+     while memcheck >= len(pipline.memory):
          pipline.address.append(96 + (len(pipline.address) * 4))
          for x in range(0, 7):
              datalist.append(0)
@@ -918,7 +949,7 @@ class simClass(object):
         for i in range(0, 10):
             #print instrName[i]
             if indices[i] > -1:
-                if instrName[indices[i]] in ['MOVZ', 'ADD', 'SUB', 'AND', 'OR', 'MUL']:
+                if instrName[indices[i]] in ['MOVZ', 'ADD', 'SUB', 'AND', 'OR','XOR' 'MUL']:
                     formattedInstr[i] = '\t[' + self.instrName[indices[i]] + '\tR' + str(
                         self.args3[indices[i]]) + ', R' + str(self.args1[indices[i]]) + ', R' + str(
                         self.args2[indices[i]]) + ']'
