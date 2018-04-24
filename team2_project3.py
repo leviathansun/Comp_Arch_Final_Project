@@ -580,7 +580,7 @@ class instructionFetch:
                 self.noHazards = False
             if self.noHazards:
                 if (pipline.registers[pipline.src1Reg[index]] != pipline.registers[pipline.src2Reg[index]]):
-                    pipline.PC += pipline.args3[i]
+                    pipline.PC += pipline.args3[index]
                     pipline.PC += 4
                     return True
                 else:
@@ -757,6 +757,7 @@ class cacheUnit:
                 dataword = 1  # block 1 was the address
                 address1 = address - 4
                 address2 = address
+            print instrIndex
             data1 = pipline.instruction[(address1 - 96) / 4]
             data2 = pipline.instruction[(address2 - 96) / 4]
         else:
