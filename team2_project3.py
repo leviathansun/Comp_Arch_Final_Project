@@ -596,7 +596,10 @@ class instructionFetch:
             if pipline.preIssueBuff[i] != -1:
                 numInPre += 1
 
-        if not self.cleanup and numInPre < 4:  # 1
+        if (pipline.instrName[index] == 'BREAK'):
+            self.cleanup = True
+            self.wait = 1
+        elif not self.cleanup and numInPre < 4:  # 1
             hit, data1 = pipline.cache.accessMemory(-1, index, 0, 0)
 
             if hit and (pipline.PC % 8 == 0) and not self.cleanup and numInPre < 4:
