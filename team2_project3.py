@@ -344,6 +344,8 @@ class Dissasembler(object):
             number = number - (1 << bitlength)
         return number
 
+
+# class comments go here
 class WBstage:
     def __init__(self):
         pass
@@ -357,41 +359,8 @@ class WBstage:
             piplup.BUFFpostMEM[0] = -1
             piplup.BUFFpostMEM[1] = -1
 
-class ALUstage:
 
-    def __init__(self):
-        pass
-
-    def run(self):
-        if (piplup.BUFFpreALU[0] != -1):
-            i = piplup.BUFFpreALU[0]
-            piplup.BUFFpostALU[1] = i
-            if (piplup.iName[i] == 'SLL'):
-                piplup.BUFFpostALU[0] = piplup.registers[piplup.src1Reg[i]] * pow(2, piplup.args3[i])
-            elif (piplup.iName[i] == 'SRL'):
-                piplup.BUFFpostALU[0] = piplup.registers[piplup.src1Reg[i]] / pow(2, piplup.args3[i])
-            elif (piplup.iName[i] == 'ADDI'):
-                piplup.BUFFpostALU[0] = int(piplup.registers[piplup.src1Reg[i]]) + piplup.args3[i]
-            elif (piplup.iName[i] == 'MUL'):
-                piplup.BUFFpostALU[0] = piplup.registers[piplup.src1Reg[i] * piplup.registers[piplup.src2Reg[i]]]
-            elif (piplup.iName[i] == 'OR'):
-                piplup.BUFFpostALU[0] = piplup.registers[piplup.src1Reg[i] | piplup.registers[piplup.src2Reg[i]]]
-            elif (piplup.iName[i] == 'AND'):
-                piplup.BUFFpostALU[0] = piplup.registers[piplup.src1Reg[i] & piplup.registers[piplup.src2Reg[i]]]
-            elif (piplup.iName[i] == 'SUB'):
-                piplup.BUFFpostALU[0] = piplup.registers[piplup.src1Reg[i] - piplup.registers[piplup.src2Reg[i]]]
-            elif (piplup.iName[i] == 'ADD'):
-                piplup.BUFFpostALU[0] = piplup.registers[piplup.src1Reg[i]] + piplup.registers[piplup.src2Reg[i]]
-            elif (piplup.iName[i] == 'XOR'):
-                piplup.BUFFpostALU[0] = piplup.registers[piplup.src1Reg[i]] ^ piplup.registers[piplup.src2Reg[i]]
-            elif (piplup.iName[i] == 'MOVZ'):
-                if (piplup.src2Reg[i] == 0):
-                    piplup.BUFFpostALU[0] = piplup.src1Reg[i]
-            piplup.BUFFpreALU[0] = piplup.BUFFpreALU[1]
-            piplup.BUFFpreALU[1] = -1
-        else:
-            pass
-
+# class comments go here
 class MEMstage:
     def __init__(self):
         pass
@@ -417,6 +386,44 @@ class MEMstage:
                 piplup.BUFFpreMem[1] = -1
 
 
+# class comments go here
+class ALUstage:
+
+    def __init__(self):
+        pass
+
+    def run(self):
+        if (piplup.BUFFpreALU[0] != -1):
+            i = piplup.BUFFpreALU[0]
+            piplup.BUFFpostALU[1] = i
+            if (piplup.iName[i] == 'SLL'):
+                piplup.BUFFpostALU[0] = piplup.registers[piplup.src1Reg[i]] * pow(2, piplup.args3[i])
+            elif (piplup.iName[i] == 'SRL'):
+                piplup.BUFFpostALU[0] = piplup.registers[piplup.src1Reg[i]] / pow(2, piplup.args3[i])
+            elif (piplup.iName[i] == 'ADD'):
+                piplup.BUFFpostALU[0] = piplup.registers[piplup.src1Reg[i]] + piplup.registers[piplup.src2Reg[i]]
+            elif (piplup.iName[i] == 'SUB'):
+                piplup.BUFFpostALU[0] = piplup.registers[piplup.src1Reg[i] - piplup.registers[piplup.src2Reg[i]]]
+            elif (piplup.iName[i] == 'AND'):
+                piplup.BUFFpostALU[0] = piplup.registers[piplup.src1Reg[i] & piplup.registers[piplup.src2Reg[i]]]
+            elif (piplup.iName[i] == 'OR'):
+                piplup.BUFFpostALU[0] = piplup.registers[piplup.src1Reg[i] | piplup.registers[piplup.src2Reg[i]]]
+            elif (piplup.iName[i] == 'XOR'):
+                piplup.BUFFpostALU[0] = piplup.registers[piplup.src1Reg[i]] ^ piplup.registers[piplup.src2Reg[i]]
+            elif (piplup.iName[i] == 'MOVZ'):
+                if (piplup.src2Reg[i] == 0):
+                    piplup.BUFFpostALU[0] = piplup.src1Reg[i]
+            elif (piplup.iName[i] == 'ADDI'):
+                piplup.BUFFpostALU[0] = int(piplup.registers[piplup.src1Reg[i]]) + piplup.args3[i]
+            elif (piplup.iName[i] == 'MUL'):
+                piplup.BUFFpostALU[0] = piplup.registers[piplup.src1Reg[i] * piplup.registers[piplup.src2Reg[i]]]
+            piplup.BUFFpreALU[0] = piplup.BUFFpreALU[1]
+            piplup.BUFFpreALU[1] = -1
+        else:
+            pass
+
+
+# class comments go here
 class IDstage:
     def __init__(self):
         pass
@@ -523,6 +530,7 @@ class IDstage:
                 current += 1
 
 
+# class comments go here
 class IFstage:
     cleanup = False
     noHazards = True
@@ -630,15 +638,15 @@ class IFstage:
                         piplup.PC = piplup.registers[piplup.src1Reg[index]]
                     elif (piplup.iName[index] == 'Invalid Instruction'):
                         piplup.PC += 4
-                    elif (piplup.iName[index] == 'BREAK'):
-                        self.cleanup = True
-                        self.wait = 1
                     elif (piplup.iName[index] == 'SW'):
                         address = piplup.args3[index] + piplup.registers[piplup.src2Reg[index]]
                         self.memoryoverflow(address)
                         piplup.BUFFpreIssue[numInPre] = index
                         piplup.PC += 4
                         numInPre += 1
+                    elif (piplup.iName[index] == 'BREAK'):
+                        self.cleanup = True
+                        self.wait = 1
                     else:
 
                         piplup.BUFFpreIssue[numInPre] = index
@@ -656,15 +664,15 @@ class IFstage:
                     piplup.PC = piplup.registers[piplup.src1Reg[index]]
                 elif (piplup.iName[index] == 'Invalid Instruction'):
                     piplup.PC += 4
-                elif (piplup.iName[index] == 'BREAK'):
-                    self.cleanup = True
-                    self.wait = 1
                 elif (piplup.iName[index] == 'SW'):
                     address = piplup.args3[index] + piplup.registers[piplup.src2Reg[index]]
                     self.memoryoverflow(address)
                     piplup.BUFFpreIssue[numInPre] = index
                     piplup.PC += 4
                     numInPre += 1
+                elif (piplup.iName[index] == 'BREAK'):
+                    self.cleanup = True
+                    self.wait = 1
                 else:
                     piplup.BUFFpreIssue[numInPre] = index
                     piplup.PC += 4
@@ -1035,7 +1043,7 @@ for i in range(len(sys.argv)):
         outputfilename2 = outputfilename + "_pipeline.txt"
         outputfilename = outputfilename + "_dis.txt"
 if not inputfilename:  # default file names if not given
-    inputfilename = "test1_bin.txt"
+    inputfilename = "test3_bin.txt"
 if not outputfilename:
     outputfilename = "team2_out_dis.txt"
     outputfilename2 = "team2_out_pipeline.txt"
