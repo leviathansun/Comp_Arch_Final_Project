@@ -432,57 +432,49 @@ class IDstage:
             if (piplup.BUFFpreIssue[i] != -1):
                 numInPreIssueBuff += 1
 
-        ##WAR CHECK
         while (numIssued < 2 and numInPreIssueBuff > 0 and current < numInPreIssueBuff):
             IDMe = True
             currIndex = piplup.BUFFpreIssue[current]
-            ## CHECK FOR ROOM IN BUFFERS
             if piplup.isMemOp(currIndex) and not -1 in piplup.BUFFpreMem:
                 IDMe = False
             elif not piplup.isMemOp(currIndex) and not -1 in piplup.BUFFpreALU:
                 IDMe = False
 
-            ## WAR CHECK
             if current > 0:
                 for i in range(0, current):
                     if (piplup.destReg[currIndex] == piplup.src1Reg[piplup.BUFFpreIssue[i]] or piplup.destReg[
                         currIndex] == piplup.src2Reg[piplup.BUFFpreIssue[i]]):
                         IDMe = False
-                        # break
             if piplup.isMemOp(currIndex):
                 for i in range(0, len(piplup.BUFFpreMem)):
                     if piplup.BUFFpreMem[i] != -1:
                         if piplup.destReg[currIndex] == piplup.src1Reg[piplup.BUFFpreMem[i]] or piplup.destReg[
                             currIndex] == piplup.src2Reg[piplup.BUFFpreMem[i]]:
                             IDMe = False
-                            # break
-            else:  # is ALU op
+
+            else:
                 for i in range(0, len(piplup.BUFFpreALU)):
                     if piplup.BUFFpreALU[i] != -1:
                         if piplup.destReg[currIndex] == piplup.src1Reg[piplup.BUFFpreALU[i]] or piplup.destReg[
                             currIndex] == piplup.src2Reg[piplup.BUFFpreALU[i]]:
                             IDMe = False
-                            # break
-            ## RAW CHECK
+
             if current > 0:
                 for i in range(0, current):
                     if (piplup.src1Reg[currIndex] == piplup.destReg[piplup.BUFFpreIssue[i]] or piplup.src2Reg[
                         currIndex] == piplup.destReg[piplup.BUFFpreIssue[i]]):
                         IDMe = False
-                        # break
 
             for i in range(0, len(piplup.BUFFpreMem)):
                 if piplup.BUFFpreMem[i] != -1:
                     if piplup.src1Reg[currIndex] == piplup.destReg[piplup.BUFFpreMem[i]] or piplup.src2Reg[
                         currIndex] == piplup.destReg[piplup.BUFFpreMem[i]]:
                         IDMe = False
-                        # break
             for i in range(0, len(piplup.BUFFpreALU)):
                 if piplup.BUFFpreALU[i] != -1:
                     if piplup.src1Reg[currIndex] == piplup.destReg[piplup.BUFFpreALU[i]] or piplup.src2Reg[
                         currIndex] == piplup.destReg[piplup.BUFFpreALU[i]]:
                         IDMe = False
-                        # break
 
             if piplup.BUFFpostALU[1] != -1:
                 if piplup.src1Reg[currIndex] == piplup.destReg[piplup.BUFFpostALU[1]] or piplup.src2Reg[
@@ -493,7 +485,6 @@ class IDstage:
                     currIndex] == piplup.destReg[piplup.BUFFpostMEM[1]]:
                     IDMe = False
 
-            ## WAW CHECK
             for i in range(0, current):
                 if piplup.destReg[currIndex] == piplup.destReg[piplup.BUFFpreIssue[i]]:
                     IDMe = False
@@ -600,7 +591,7 @@ class IFstage:
         if (piplup.iName[index] == 'BREAK'):
             self.cleanup = True
             self.wait = 1
-        elif not self.cleanup and numInPre < 4:  # 1
+        elif not self.cleanup and numInPre < 4:
             hit, data1 = piplup.cache.accessMemory(-1, index, 0, 0)
 
             if hit and (piplup.PC % 8 == 0) and not self.cleanup and numInPre < 4:
@@ -733,45 +724,43 @@ class cacheUnit:
     def finalFlush(self):
         for s in range(4):
             if (self.cacheSet[s][0][2] == 1):
-                wbAddr = self.cacheSet[s][0][2]  # tag of mem
-                wbAddr = (wbAddr << 5) + (s << 3)  # converted to address with s
-                index = (wbAddr - 96 - (4 * piplup.numInstructions)) / 4  # index of mem
-                self.cacheSet[s][0][1] = 0  # reset dirty bit
-                piplup.memory[index] = self.cacheSet[s][0][3]  # change value in memory 1st word
-                piplup.memory[index + 1] = self.cacheSet[s][0][4]  # change value in memory 2nd word
+                wbAddr = self.cacheSet[s][0][2]
+                wbAddr = (wbAddr << 5) + (s << 3)
+                index = (wbAddr - 96 - (4 * piplup.numInstructions)) / 4
+                self.cacheSet[s][0][1] = 0
+                piplup.memory[index] = self.cacheSet[s][0][3]
+                piplup.memory[index + 1] = self.cacheSet[s][0][4]
             elif (self.cacheSet[s][1][1] == 1):
                 wbAddr = self.cacheSet[s][1][2]
                 wbAddr = (wbAddr << 5) + (s << 3)
                 index = (wbAddr - 96 - (4 * piplup.numInstructions)) / 4
-                self.cacheSet[s][1][1] = 0  # reset dirty bit
+                self.cacheSet[s][1][1] = 0
                 self.memoryoverflow(index + 1)
-                piplup.memory[index] = self.cacheSet[s][1][3]  # change value in memory 1st word
-                piplup.memory[index + 1] = self.cacheSet[s][1][4]  # change value in memory 2nd word
+                piplup.memory[index] = self.cacheSet[s][1][3]
+                piplup.memory[index + 1] = self.cacheSet[s][1][4]
                 self.cacheSet[s][1][1] = 0
 
     def accessMemory(self, memIndex, instrIndex, isWriteTomem, dataToWrite):
-        # figure out the alignment
         if (instrIndex != -1):
             address = (instrIndex * 4) + 96
-            if (address % 8 == 0):  # address 96+n8
-                dataword = 0  # block 0 was the address
+            if (address % 8 == 0):
+                dataword = 0
                 address1 = address
                 address2 = address + 4
-            else:  # address != 96+n8
-                dataword = 1  # block 1 was the address
+            else:
+                dataword = 1
                 address1 = address - 4
                 address2 = address
-            #print instrIndex
             data1 = piplup.instruction[(address1 - 96) / 4]
             data2 = piplup.instruction[(address2 - 96) / 4]
         else:
             address = (memIndex * 4) + 96 + (4 * piplup.numInstructions)
-            if (address % 8 == 0):  # address 96+n8
-                dataword = 0  # block 0 was the address
+            if (address % 8 == 0):
+                dataword = 0
                 address1 = address
                 address2 = address + 4
-            else:  # address != 96+n8
-                dataword = 1  # block 1 was the address
+            else:
+                dataword = 1
                 address1 = address - 4
                 address2 = address
             addresscheck1 = (address1 - (96 + (4 * piplup.numInstructions))) / 4
@@ -780,13 +769,11 @@ class cacheUnit:
             data1 = piplup.memory[addresscheck1]
             data2 = piplup.memory[addresscheck2]
 
-        # 4
         if (isWriteTomem and dataword == 0):
             data1 = dataToWrite
         elif (isWriteTomem and dataword == 1):
             data2 = dataToWrite
 
-        # 5. decode the address of word 0 into cache address
         tag = (address1 & self.tagMask)
         setNum = (tag & self.setMask) >> 3
         tag = tag >> 5
@@ -800,18 +787,13 @@ class cacheUnit:
             assocblock = 1
             hit = True
         if (hit and isWriteTomem):
-            # update dirty bit
             self.cacheSet[setNum][assocblock][1] = 1
-            # update set lru bit
             self.lruBit[setNum] = (assocblock + 1) % 2
-            # write data to cache
             self.cacheSet[setNum][assocblock][dataword + 3] = dataToWrite
             return True, self.cacheSet[setNum][assocblock][dataword + 3]
-        # 8.
         elif (hit and not isWriteTomem):
             self.lruBit[setNum] = (assocblock + 1) % 2
             return True, self.cacheSet[setNum][assocblock][dataword + 3]
-        # 9.
         elif (not hit):
             if (address1 not in self.justMissedList):
                 if (memIndex != -1):
@@ -819,10 +801,9 @@ class cacheUnit:
                 else:
                     self.justMissedList[0] = address1
                 return False, 0
-            else:  # second miss
+            else:
                 if self.cacheSet[setNum][self.lruBit[setNum]][1] == 1:
-                    # write back the memory address asociated with the block
-                    wbAddr = self.cacheSet[setNum][self.lruBit[setNum]][2]  # tag
+                    wbAddr = self.cacheSet[setNum][self.lruBit[setNum]][2]
 
                     wbAddr = (wbAddr << 5) + (setNum << 3)
 
@@ -832,20 +813,18 @@ class cacheUnit:
                     if (wbAddr + 4 >= (piplup.numInstructions * 4) + 96):
                         piplup.memory[piplup.getIndexOfMemAddress(wbAddr + 4)] = \
                         self.cacheSet[setNum][self.lruBit[setNum]][4]
-                    # now update the cache flag bits
-                self.cacheSet[setNum][self.lruBit[setNum]][0] = 1  # valid  we are writing a block
-                self.cacheSet[setNum][self.lruBit[setNum]][1] = 0  # reset the dirty bit
+                self.cacheSet[setNum][self.lruBit[setNum]][0] = 1
+                self.cacheSet[setNum][self.lruBit[setNum]][1] = 0
                 if (isWriteTomem):
                     self.cacheSet[setNum][self.lruBit[setNum]][
-                        1] = 1  # dirty if is data mem is dirty again, intruction mem never dirty
-                # update both words in the actual cache block in set
-                self.cacheSet[setNum][self.lruBit[setNum]][2] = tag  # tag
-                self.cacheSet[setNum][self.lruBit[setNum]][3] = data1  # data
-                self.cacheSet[setNum][self.lruBit[setNum]][4] = data2  # nextData
+                        1] = 1
+                self.cacheSet[setNum][self.lruBit[setNum]][2] = tag
+                self.cacheSet[setNum][self.lruBit[setNum]][3] = data1
+                self.cacheSet[setNum][self.lruBit[setNum]][4] = data2
 
                 if (memIndex != -1):
                     if type(data1) == str and type(data2) == str:
-                        if data1[0] == '1':  # if piplup.registers[piplup.src1Reg[i]] < 0:
+                        if data1[0] == '1':
                             intdata1 = ((int(data1, 2) ^ 0b11111111111111111111111111111111) + 1) * -1
                         else:
                             intdata1 = int(data1, 2)
@@ -854,14 +833,14 @@ class cacheUnit:
                             intdata2 = ((int(data2, 2) ^ 0b11111111111111111111111111111111) + 1) * -1
                         else:
                             intdata2 = int(data2, 2)
-                        self.cacheSet[setNum][self.lruBit[setNum]][3] = intdata1  # nextData
-                        self.cacheSet[setNum][self.lruBit[setNum]][4] = intdata2  # nextData
+                        self.cacheSet[setNum][self.lruBit[setNum]][3] = intdata1
+                        self.cacheSet[setNum][self.lruBit[setNum]][4] = intdata2
                     else:
-                        self.cacheSet[setNum][self.lruBit[setNum]][3] = data1  # nextData
+                        self.cacheSet[setNum][self.lruBit[setNum]][3] = data1
                         self.cacheSet[setNum][self.lruBit[setNum]][4] = data2
-                self.lruBit[setNum] = (self.lruBit[setNum] + 1) % 2  # set lru to show block is recently used
+                self.lruBit[setNum] = (self.lruBit[setNum] + 1) % 2
                 return [True, self.cacheSet[setNum][(self.lruBit[setNum] + 1) % 2][
-                    dataword + 3]]  # dataword was the actual word thatgenerated the hit
+                    dataword + 3]]
 
     def memoryoverflow(self, memcheck):
      while memcheck >= len(piplup.memory):
@@ -875,7 +854,6 @@ class simClass(object):
     memory = []
     validi = []
     address = []
-    numInstructions = 0
     iName = []
     firstArg = []
     secondArg = []
@@ -883,19 +861,20 @@ class simClass(object):
     destReg = []
     src1Reg = []
     src2Reg = []
-    cycle = 1
     registers = []
-    BUFFpreMem = [-1, -1]  # first number is index, second is index
-    BUFFpostMEM = [-1, -1]  # first number is value, scond is instruction index
-    BUFFpreALU = [-1, -1]  # first number is index, second is index, 2 instructions
-    BUFFpostALU = [-1, -1]  # first number is value, second is instr index
-    BUFFpreIssue = [-1, -1, -1, -1]  # list of 4 instruction indices
+    BUFFpreMem = [-1, -1]
+    BUFFpostMEM = [-1, -1]
+    BUFFpreALU = [-1, -1]
+    BUFFpostALU = [-1, -1]
+    BUFFpreIssue = [-1, -1, -1, -1]
     WB = WBstage()
     ALU = ALUstage()
     MEM = MEMstage()
     ID = IDstage()
     IF = IFstage()
     cache = cacheUnit()
+    numInstructions = 0
+    cycle = 1
     PC = 96
 
     def __init__(self, instrs, opcodes, mem, valids, addrs, args1, args2, args3, numInstrs, dest, src1, src2, iName, pipelineoutput):
@@ -952,7 +931,6 @@ class simClass(object):
         indices[9] = self.BUFFpostMEM[1]
 
         for i in range(0, 10):
-            #print iName[i]
             if indices[i] > -1:
                 if iName[indices[i]] in ['MOVZ', 'ADD', 'SUB', 'AND', 'OR','XOR' 'MUL']:
                     formattedInstr[i] = '\t[' + self.iName[indices[i]] + '\tR' + str(
@@ -1040,7 +1018,7 @@ class simClass(object):
                 pipelineoutput.write('\n' + str(dataAddress) + ':' + str(self.memory[i])),
             elif (i % 8 == 0 and not i == 0):
                 pipelineoutput.write('\n' + str(dataAddress) + ':' + str(self.memory[i])),
-            else:  # not a multiple of 8
+            else:
                 pipelineoutput.write('\t' + str(self.memory[i])),
             i += 1
             dataAddress += 4
@@ -1050,13 +1028,13 @@ dissasembler1 = Dissasembler()
 inputfilename = ""
 outputfilename = ""
 for i in range(len(sys.argv)):
-    if (sys.argv[i] == '-i' and i < (len(sys.argv) - 1)):#check for input file name
+    if (sys.argv[i] == '-i' and i < (len(sys.argv) - 1)):  # check for input file name
         inputfilename = sys.argv[i + 1]
-    elif (sys.argv[i] == '-o' and i < (len(sys.argv) - 1)):#check for output file name
+    elif (sys.argv[i] == '-o' and i < (len(sys.argv) - 1)):  # check for output file name
         outputfilename = sys.argv[i + 1]
         outputfilename2 = outputfilename + "_pipeline.txt"
         outputfilename = outputfilename + "_dis.txt"
-if not inputfilename:#default file names if not given
+if not inputfilename:  # default file names if not given
     inputfilename = "test1_bin.txt"
 if not outputfilename:
     outputfilename = "team2_out_dis.txt"
