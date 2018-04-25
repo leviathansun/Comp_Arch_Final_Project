@@ -370,11 +370,11 @@ class MEMstage:
             hit = False
             if(piplup.iName[i] == 'LW'):
                 address = piplup.args3[i] + piplup.registers[piplup.src1Reg[i]]
-                hit, data = piplup.cache.accessMemory(piplup.getIndexOfMemAddress(address),-1,False,0)
+                hit, data = piplup.cache.accessMemory(piplup.getMEMI(address),-1,False,0)
 
             elif(piplup.iName[i] == 'SW'):
                 address = piplup.args3[i] + piplup.registers[piplup.src2Reg[i]]
-                hit, data = piplup.cache.accessMemory(piplup.getIndexOfMemAddress(address), -1, True, piplup.registers[piplup.src1Reg[i]])
+                hit, data = piplup.cache.accessMemory(piplup.getMEMI(address), -1, True, piplup.registers[piplup.src1Reg[i]])
 
             if(hit):
 
@@ -715,6 +715,7 @@ class IFstage:
              piplup.memory.append(0)
 
 
+# class comments go here
 class cacheUnit:
     cacheSet = [[[0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],
                 [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],
@@ -816,10 +817,10 @@ class cacheUnit:
                     wbAddr = (wbAddr << 5) + (setNum << 3)
 
                     if (wbAddr >= (piplup.numInstructions * 4) + 96):
-                        piplup.memory[piplup.getIndexOfMemAddress(wbAddr)] = \
+                        piplup.memory[piplup.getMEMI(wbAddr)] = \
                         self.cacheSet[setNum][self.lruBit[setNum]][3]
                     if (wbAddr + 4 >= (piplup.numInstructions * 4) + 96):
-                        piplup.memory[piplup.getIndexOfMemAddress(wbAddr + 4)] = \
+                        piplup.memory[piplup.getMEMI(wbAddr + 4)] = \
                         self.cacheSet[setNum][self.lruBit[setNum]][4]
                 self.cacheSet[setNum][self.lruBit[setNum]][0] = 1
                 self.cacheSet[setNum][self.lruBit[setNum]][1] = 0
@@ -856,6 +857,8 @@ class cacheUnit:
          for x in range(0, 7):
              dataList.append(0)
 
+
+# class comments go here
 class simClass(object):
     instruction = []
     opcode = []
@@ -901,7 +904,7 @@ class simClass(object):
         self.iName = iName
         self.pipelineoutput = pipelineoutput
 
-    def getIndexOfMemAddress(self, bin_addr):
+    def getMEMI(self, bin_addr):
         return ((bin_addr - (96 + (4 * self.numInstructions))) / 4)
 
     def isMemOp(self, index):
@@ -924,6 +927,8 @@ class simClass(object):
                 self.cache.finalFlush()
             self.printState()
             self.cycle+=1
+
+
     def printState(self):
         global pipelineoutput
         formattedInstr = ['', '', '', '', '', '', '', '', '', '']
@@ -1043,7 +1048,7 @@ for i in range(len(sys.argv)):
         outputfilename2 = outputfilename + "_pipeline.txt"
         outputfilename = outputfilename + "_dis.txt"
 if not inputfilename:  # default file names if not given
-    inputfilename = "test3_bin.txt"
+    inputfilename = "test1_bin.txt"
 if not outputfilename:
     outputfilename = "team2_out_dis.txt"
     outputfilename2 = "team2_out_pipeline.txt"
