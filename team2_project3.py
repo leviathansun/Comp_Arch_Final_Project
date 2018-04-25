@@ -60,15 +60,15 @@ registers[29] = {'name': "R29", 'data': 0}
 registers[30] = {'name': "R30", 'data': 0}
 registers[31] = {'name': "R31", 'data': 0}
 
-datalist = []
+dataList = []
 instruction = []
-opcodelist = []
-instrName = []
+opList = []
+iName = []
 address = []
-validInstr = []
-arg1 = []
-arg2 = []
-arg3 = []
+validi = []
+firstArg = []
+secondArg = []
+thirdArg = []
 destReg = []
 src1Reg = []
 src2Reg = []
@@ -96,8 +96,8 @@ class Dissasembler(object):
             if break_found is False:
                 validbit = line[0] #parse out the bits
                 opcode = line[1:6]
-                opcodelist.append(int(opcode, 2))
-                validInstr.append(int(validbit))
+                opList.append(int(opcode, 2))
+                validi.append(int(validbit))
                 instruction.append(line[0:32])
                 group1 = line[6:11]
                 group2 = line[11:16]
@@ -109,11 +109,11 @@ class Dissasembler(object):
                 if int(validbit) is 0:#check for invalid instruction
                     output_file.write("Invalid Instruction")
 
-                    instrName.append('Invalid Instruction')
+                    iName.append('Invalid Instruction')
                     address.append(PC + (counter * 4))
-                    arg1.append(int(group1, 2))
-                    arg2.append(int(group2, 2))
-                    arg3.append(' ')
+                    firstArg.append(int(group1, 2))
+                    secondArg.append(int(group2, 2))
+                    thirdArg.append(' ')
                     destReg.append(invalid)
                     invalid -= 1
                     src1Reg.append(invalid)
@@ -135,11 +135,11 @@ class Dissasembler(object):
                             if (rd == registers[0]['name']) and (rt == registers[0]['name']):
                                 output_file.write('%s' % ('NOP'))
 
-                                instrName.append('NOP')
+                                iName.append('NOP')
                                 address.append(PC + (counter * 4))
-                                arg1.append(int(group1, 2))
-                                arg2.append(int(group2, 2))
-                                arg3.append('')
+                                firstArg.append(int(group1, 2))
+                                secondArg.append(int(group2, 2))
+                                thirdArg.append('')
                                 destReg.append(invalid)
                                 invalid -= 1
                                 src1Reg.append(invalid)
@@ -152,13 +152,13 @@ class Dissasembler(object):
                                 output_file.write('%s' % (function_name))
                                 output_file.write('\t' + rd + ', ' + rt + ', #' + str(sa))
 
-                                instrName.append(function_name)
+                                iName.append(function_name)
                                 address.append(PC + (counter * 4))
-                                arg1.append(int(group2, 2))
-                                arg2.append(int(group3, 2))
-                                arg3.append(int(group4, 2))
-                                destReg.append(arg2[counter])
-                                src1Reg.append(arg1[counter])
+                                firstArg.append(int(group2, 2))
+                                secondArg.append(int(group3, 2))
+                                thirdArg.append(int(group4, 2))
+                                destReg.append(secondArg[counter])
+                                src1Reg.append(firstArg[counter])
                                 src2Reg.append(invalid)
                                 invalid -= 1
                                 numInstrs += 1
@@ -168,14 +168,14 @@ class Dissasembler(object):
                             output_file.write('%s' % (function_name))
                             output_file.write('\t' + rs)
 
-                            instrName.append(function_name)
+                            iName.append(function_name)
                             address.append(PC + (counter * 4))
-                            arg1.append(int(group1, 2))
-                            arg2.append(0)
-                            arg3.append(0)
+                            firstArg.append(int(group1, 2))
+                            secondArg.append(0)
+                            thirdArg.append(0)
                             destReg.append(invalid)
                             invalid -= 1
-                            src1Reg.append(arg1[counter])
+                            src1Reg.append(firstArg[counter])
                             src2Reg.append(invalid)
                             invalid -= 1
                             numInstrs += 1
@@ -185,25 +185,25 @@ class Dissasembler(object):
                             output_file.write('%s' % (function_name))
                             output_file.write('\t' + rd + ', ' + rs + ', ' + rt)
 
-                            instrName.append(function_name)
+                            iName.append(function_name)
                             address.append(PC + (counter * 4))
-                            arg1.append(int(group1, 2))
-                            arg2.append(int(group2, 2))
-                            arg3.append(int(group3, 2))
-                            destReg.append(arg3[counter])
-                            src1Reg.append(arg1[counter])
-                            src2Reg.append(arg2[counter])
+                            firstArg.append(int(group1, 2))
+                            secondArg.append(int(group2, 2))
+                            thirdArg.append(int(group3, 2))
+                            destReg.append(thirdArg[counter])
+                            src1Reg.append(firstArg[counter])
+                            src2Reg.append(secondArg[counter])
                             numInstrs += 1
                             counter += 1
 
                         if subtype is 3:
                             output_file.write('%s' % (function_name))
 
-                            instrName.append('BREAK')
+                            iName.append('BREAK')
                             address.append(PC + (counter * 4))
-                            arg1.append(int(group1, 2))
-                            arg2.append(int(group2, 2))
-                            arg3.append(0)
+                            firstArg.append(int(group1, 2))
+                            secondArg.append(int(group2, 2))
+                            thirdArg.append(0)
                             destReg.append(invalid)
                             invalid -= 1
                             src1Reg.append(invalid)
@@ -224,11 +224,11 @@ class Dissasembler(object):
                                 output_file.write('%s' % (function_name))
                                 output_file.write('\t#' + str(jumpCode))
 
-                                instrName.append(function_name)
+                                iName.append(function_name)
                                 address.append(PC + (counter * 4))
-                                arg1.append(jumpCode)
-                                arg2.append(0)
-                                arg3.append(0)
+                                firstArg.append(jumpCode)
+                                secondArg.append(0)
+                                thirdArg.append(0)
                                 destReg.append(invalid)
                                 invalid -= 1
                                 src1Reg.append(invalid)
@@ -245,26 +245,26 @@ class Dissasembler(object):
                                 output_file.write('%s' % (function_name))
                                 output_file.write('\t' + rt + ', ' + str(offset) +"(" + rs + ')' )
 
-                                instrName.append(function_name)
+                                iName.append(function_name)
                                 address.append(PC + (counter * 4))
-                                arg1.append(int(group1, 2))
-                                arg2.append(int(group2, 2))
-                                arg3.append(offset)
+                                firstArg.append(int(group1, 2))
+                                secondArg.append(int(group2, 2))
+                                thirdArg.append(offset)
                                 if funct == 11:
                                     destReg.append(invalid)
                                     invalid -= 1
-                                    src1Reg.append(arg2[counter])
-                                    src2Reg.append(arg1[counter])
+                                    src1Reg.append(secondArg[counter])
+                                    src2Reg.append(firstArg[counter])
                                 elif funct == 3:
-                                    destReg.append(arg2[counter])
-                                    src1Reg.append(arg1[counter])
+                                    destReg.append(secondArg[counter])
+                                    src1Reg.append(firstArg[counter])
                                     src2Reg.append(invalid)
                                     invalid -= 1
                                 elif funct == 5:
                                     destReg.append(invalid)
                                     invalid -= 1
-                                    src1Reg.append(arg1[counter])
-                                    src2Reg.append(arg2[counter])
+                                    src1Reg.append(firstArg[counter])
+                                    src2Reg.append(secondArg[counter])
                                 numInstrs += 1
                                 counter += 1
                         if subtype is 6:
@@ -273,14 +273,14 @@ class Dissasembler(object):
                             output_file.write('%s' % (function_name))
                             output_file.write('\t' + rs + ', #' + str(offset))
 
-                            instrName.append(function_name)
+                            iName.append(function_name)
                             address.append(PC + (counter * 4))
-                            arg1.append(int(group1, 2))
-                            arg2.append(int(group2, 2))
-                            arg3.append(offset)
+                            firstArg.append(int(group1, 2))
+                            secondArg.append(int(group2, 2))
+                            thirdArg.append(offset)
                             destReg.append(invalid)
                             invalid -= 1
-                            src1Reg.append(arg1[counter])
+                            src1Reg.append(firstArg[counter])
                             src2Reg.append(invalid)
                             invalid -= 1
                             numInstrs += 1
@@ -293,14 +293,14 @@ class Dissasembler(object):
                             output_file.write('%s' % (function_name))
                             output_file.write('\t' + rd + ', ' + rs + ', ' + rt)
 
-                            instrName.append(function_name)
+                            iName.append(function_name)
                             address.append(PC + (counter * 4))
-                            arg1.append(int(group1, 2))
-                            arg2.append(int(group2, 2))
-                            arg3.append(int(group3, 2))
-                            destReg.append(arg3[counter])
-                            src1Reg.append(arg1[counter])
-                            src2Reg.append(arg2[counter])
+                            firstArg.append(int(group1, 2))
+                            secondArg.append(int(group2, 2))
+                            thirdArg.append(int(group3, 2))
+                            destReg.append(thirdArg[counter])
+                            src1Reg.append(firstArg[counter])
+                            src2Reg.append(secondArg[counter])
                             numInstrs += 1
                             counter += 1
 
@@ -311,14 +311,14 @@ class Dissasembler(object):
                             output_file.write('%s' % (function_name))
                             output_file.write('\t' + rt + ', ' + rs + ', #' + str(immediate))
 
-                            instrName.append('ADDI')
+                            iName.append('ADDI')
                             address.append(PC + (counter * 4))
-                            arg1.append(int(group1, 2))
-                            arg2.append(int(group2, 2))
-                            arg3.append(int(group3, 2))
-                            arg3[counter] = int(immediate)
-                            destReg.append(arg2[counter])
-                            src1Reg.append(arg1[counter])
+                            firstArg.append(int(group1, 2))
+                            secondArg.append(int(group2, 2))
+                            thirdArg.append(int(group3, 2))
+                            thirdArg[counter] = int(immediate)
+                            destReg.append(secondArg[counter])
+                            src1Reg.append(firstArg[counter])
                             src2Reg.append(invalid)
                             invalid -= 1
                             numInstrs += 1
@@ -327,7 +327,7 @@ class Dissasembler(object):
             else:#Output after Break
                 output_file.write('%s' % (line[0:32]))
                 output_file.write('\t' + (str(memory_location) + '\t' + str(self.twos_comp(int(line[0:32], 2), len(line[0:32])))))
-                datalist.append(self.twos_comp(int(line[0:32], 2), len(line[0:32])))
+                dataList.append(self.twos_comp(int(line[0:32], 2), len(line[0:32])))
                 address.append(PC + (counter * 4))
                 counter += 1
             output_file.write("\n")
@@ -344,195 +344,195 @@ class Dissasembler(object):
             number = number - (1 << bitlength)
         return number
 
-class writeBack:
+class WBstage:
     def __init__(self):
         pass
     def run(self):
-        if(pipline.postALUBuff[1] != -1):
-            pipline.registers[pipline.destReg[pipline.postALUBuff[1]]] = pipline.postALUBuff[0]
-            pipline.postALUBuff[0] = -1
-            pipline.postALUBuff[1] = -1
-        if(pipline.postMemBuff[1] != -1):
-            pipline.registers[pipline.destReg[pipline.postMemBuff[1]]] = pipline.postMemBuff[0]
-            pipline.postMemBuff[0] = -1
-            pipline.postMemBuff[1] = -1
+        if(piplup.BUFFpostALU[1] != -1):
+            piplup.registers[piplup.destReg[piplup.BUFFpostALU[1]]] = piplup.BUFFpostALU[0]
+            piplup.BUFFpostALU[0] = -1
+            piplup.BUFFpostALU[1] = -1
+        if(piplup.BUFFpostMEM[1] != -1):
+            piplup.registers[piplup.destReg[piplup.BUFFpostMEM[1]]] = piplup.BUFFpostMEM[0]
+            piplup.BUFFpostMEM[0] = -1
+            piplup.BUFFpostMEM[1] = -1
 
-class arithmeticLogicUnit:
+class ALUstage:
 
     def __init__(self):
         pass
 
     def run(self):
-        if (pipline.preALUBuff[0] != -1):
-            i = pipline.preALUBuff[0]
-            pipline.postALUBuff[1] = i
-            if (pipline.instrName[i] == 'SLL'):
-                pipline.postALUBuff[0] = pipline.registers[pipline.src1Reg[i]] * pow(2, pipline.args3[i])
-            elif (pipline.instrName[i] == 'SRL'):
-                pipline.postALUBuff[0] = pipline.registers[pipline.src1Reg[i]] / pow(2, pipline.args3[i])
-            elif (pipline.instrName[i] == 'ADDI'):
-                pipline.postALUBuff[0] = int(pipline.registers[pipline.src1Reg[i]]) + pipline.args3[i]
-            elif (pipline.instrName[i] == 'MUL'):
-                pipline.postALUBuff[0] = pipline.registers[pipline.src1Reg[i] * pipline.registers[pipline.src2Reg[i]]]
-            elif (pipline.instrName[i] == 'OR'):
-                pipline.postALUBuff[0] = pipline.registers[pipline.src1Reg[i] | pipline.registers[pipline.src2Reg[i]]]
-            elif (pipline.instrName[i] == 'AND'):
-                pipline.postALUBuff[0] = pipline.registers[pipline.src1Reg[i] & pipline.registers[pipline.src2Reg[i]]]
-            elif (pipline.instrName[i] == 'SUB'):
-                pipline.postALUBuff[0] = pipline.registers[pipline.src1Reg[i] - pipline.registers[pipline.src2Reg[i]]]
-            elif (pipline.instrName[i] == 'ADD'):
-                pipline.postALUBuff[0] = pipline.registers[pipline.src1Reg[i]] + pipline.registers[pipline.src2Reg[i]]
-            elif (pipline.instrName[i] == 'XOR'):
-                pipline.postALUBuff[0] = pipline.registers[pipline.src1Reg[i]] ^ pipline.registers[pipline.src2Reg[i]]
-            elif (pipline.instrName[i] == 'MOVZ'):
-                if (pipline.src2Reg[i] == 0):
-                    pipline.postALUBuff[0] = pipline.src1Reg[i]
-            pipline.preALUBuff[0] = pipline.preALUBuff[1]
-            pipline.preALUBuff[1] = -1
+        if (piplup.BUFFpreALU[0] != -1):
+            i = piplup.BUFFpreALU[0]
+            piplup.BUFFpostALU[1] = i
+            if (piplup.iName[i] == 'SLL'):
+                piplup.BUFFpostALU[0] = piplup.registers[piplup.src1Reg[i]] * pow(2, piplup.args3[i])
+            elif (piplup.iName[i] == 'SRL'):
+                piplup.BUFFpostALU[0] = piplup.registers[piplup.src1Reg[i]] / pow(2, piplup.args3[i])
+            elif (piplup.iName[i] == 'ADDI'):
+                piplup.BUFFpostALU[0] = int(piplup.registers[piplup.src1Reg[i]]) + piplup.args3[i]
+            elif (piplup.iName[i] == 'MUL'):
+                piplup.BUFFpostALU[0] = piplup.registers[piplup.src1Reg[i] * piplup.registers[piplup.src2Reg[i]]]
+            elif (piplup.iName[i] == 'OR'):
+                piplup.BUFFpostALU[0] = piplup.registers[piplup.src1Reg[i] | piplup.registers[piplup.src2Reg[i]]]
+            elif (piplup.iName[i] == 'AND'):
+                piplup.BUFFpostALU[0] = piplup.registers[piplup.src1Reg[i] & piplup.registers[piplup.src2Reg[i]]]
+            elif (piplup.iName[i] == 'SUB'):
+                piplup.BUFFpostALU[0] = piplup.registers[piplup.src1Reg[i] - piplup.registers[piplup.src2Reg[i]]]
+            elif (piplup.iName[i] == 'ADD'):
+                piplup.BUFFpostALU[0] = piplup.registers[piplup.src1Reg[i]] + piplup.registers[piplup.src2Reg[i]]
+            elif (piplup.iName[i] == 'XOR'):
+                piplup.BUFFpostALU[0] = piplup.registers[piplup.src1Reg[i]] ^ piplup.registers[piplup.src2Reg[i]]
+            elif (piplup.iName[i] == 'MOVZ'):
+                if (piplup.src2Reg[i] == 0):
+                    piplup.BUFFpostALU[0] = piplup.src1Reg[i]
+            piplup.BUFFpreALU[0] = piplup.BUFFpreALU[1]
+            piplup.BUFFpreALU[1] = -1
         else:
             pass
 
-class memWrite:
+class MEMstage:
     def __init__(self):
         pass
     def run(self):
-        if(pipline.preMemBuff[0] != -1):
-            i = pipline.preMemBuff[0]
+        if(piplup.BUFFpreMem[0] != -1):
+            i = piplup.BUFFpreMem[0]
             hit = False
-            if(pipline.instrName[i] == 'LW'):
-                address = pipline.args3[i] + pipline.registers[pipline.src1Reg[i]]
-                hit, data = pipline.cache.accessMemory(pipline.getIndexOfMemAddress(address),-1,False,0)
+            if(piplup.iName[i] == 'LW'):
+                address = piplup.args3[i] + piplup.registers[piplup.src1Reg[i]]
+                hit, data = piplup.cache.accessMemory(piplup.getIndexOfMemAddress(address),-1,False,0)
 
-            elif(pipline.instrName[i] == 'SW'):
-                address = pipline.args3[i] + pipline.registers[pipline.src2Reg[i]]
-                hit, data = pipline.cache.accessMemory(pipline.getIndexOfMemAddress(address), -1, True, pipline.registers[pipline.src1Reg[i]])
+            elif(piplup.iName[i] == 'SW'):
+                address = piplup.args3[i] + piplup.registers[piplup.src2Reg[i]]
+                hit, data = piplup.cache.accessMemory(piplup.getIndexOfMemAddress(address), -1, True, piplup.registers[piplup.src1Reg[i]])
 
             if(hit):
 
-                if pipline.instrName[i] == 'LW':
-                    pipline.postMemBuff[0] = int(data)
-                    pipline.postMemBuff[1] = i
+                if piplup.iName[i] == 'LW':
+                    piplup.BUFFpostMEM[0] = int(data)
+                    piplup.BUFFpostMEM[1] = i
 
-                pipline.preMemBuff[0] = pipline.preMemBuff[1]
-                pipline.preMemBuff[1] = -1
+                piplup.BUFFpreMem[0] = piplup.BUFFpreMem[1]
+                piplup.BUFFpreMem[1] = -1
 
 
-class issueUnit:
+class IDstage:
     def __init__(self):
         pass
 
     def run(self):
-        issueMe = True
+        IDMe = True
         numIssued = 0
         numInPreIssueBuff = 0
         currIndex = -1
         current = 0
 
         for i in range(4):
-            if (pipline.preIssueBuff[i] != -1):
+            if (piplup.BUFFpreIssue[i] != -1):
                 numInPreIssueBuff += 1
 
         ##WAR CHECK
         while (numIssued < 2 and numInPreIssueBuff > 0 and current < numInPreIssueBuff):
-            issueMe = True
-            currIndex = pipline.preIssueBuff[current]
+            IDMe = True
+            currIndex = piplup.BUFFpreIssue[current]
             ## CHECK FOR ROOM IN BUFFERS
-            if pipline.isMemOp(currIndex) and not -1 in pipline.preMemBuff:
-                issueMe = False
-            elif not pipline.isMemOp(currIndex) and not -1 in pipline.preALUBuff:
-                issueMe = False
+            if piplup.isMemOp(currIndex) and not -1 in piplup.BUFFpreMem:
+                IDMe = False
+            elif not piplup.isMemOp(currIndex) and not -1 in piplup.BUFFpreALU:
+                IDMe = False
 
             ## WAR CHECK
             if current > 0:
                 for i in range(0, current):
-                    if (pipline.destReg[currIndex] == pipline.src1Reg[pipline.preIssueBuff[i]] or pipline.destReg[
-                        currIndex] == pipline.src2Reg[pipline.preIssueBuff[i]]):
-                        issueMe = False
+                    if (piplup.destReg[currIndex] == piplup.src1Reg[piplup.BUFFpreIssue[i]] or piplup.destReg[
+                        currIndex] == piplup.src2Reg[piplup.BUFFpreIssue[i]]):
+                        IDMe = False
                         # break
-            if pipline.isMemOp(currIndex):
-                for i in range(0, len(pipline.preMemBuff)):
-                    if pipline.preMemBuff[i] != -1:
-                        if pipline.destReg[currIndex] == pipline.src1Reg[pipline.preMemBuff[i]] or pipline.destReg[
-                            currIndex] == pipline.src2Reg[pipline.preMemBuff[i]]:
-                            issueMe = False
+            if piplup.isMemOp(currIndex):
+                for i in range(0, len(piplup.BUFFpreMem)):
+                    if piplup.BUFFpreMem[i] != -1:
+                        if piplup.destReg[currIndex] == piplup.src1Reg[piplup.BUFFpreMem[i]] or piplup.destReg[
+                            currIndex] == piplup.src2Reg[piplup.BUFFpreMem[i]]:
+                            IDMe = False
                             # break
             else:  # is ALU op
-                for i in range(0, len(pipline.preALUBuff)):
-                    if pipline.preALUBuff[i] != -1:
-                        if pipline.destReg[currIndex] == pipline.src1Reg[pipline.preALUBuff[i]] or pipline.destReg[
-                            currIndex] == pipline.src2Reg[pipline.preALUBuff[i]]:
-                            issueMe = False
+                for i in range(0, len(piplup.BUFFpreALU)):
+                    if piplup.BUFFpreALU[i] != -1:
+                        if piplup.destReg[currIndex] == piplup.src1Reg[piplup.BUFFpreALU[i]] or piplup.destReg[
+                            currIndex] == piplup.src2Reg[piplup.BUFFpreALU[i]]:
+                            IDMe = False
                             # break
             ## RAW CHECK
             if current > 0:
                 for i in range(0, current):
-                    if (pipline.src1Reg[currIndex] == pipline.destReg[pipline.preIssueBuff[i]] or pipline.src2Reg[
-                        currIndex] == pipline.destReg[pipline.preIssueBuff[i]]):
-                        issueMe = False
+                    if (piplup.src1Reg[currIndex] == piplup.destReg[piplup.BUFFpreIssue[i]] or piplup.src2Reg[
+                        currIndex] == piplup.destReg[piplup.BUFFpreIssue[i]]):
+                        IDMe = False
                         # break
 
-            for i in range(0, len(pipline.preMemBuff)):
-                if pipline.preMemBuff[i] != -1:
-                    if pipline.src1Reg[currIndex] == pipline.destReg[pipline.preMemBuff[i]] or pipline.src2Reg[
-                        currIndex] == pipline.destReg[pipline.preMemBuff[i]]:
-                        issueMe = False
+            for i in range(0, len(piplup.BUFFpreMem)):
+                if piplup.BUFFpreMem[i] != -1:
+                    if piplup.src1Reg[currIndex] == piplup.destReg[piplup.BUFFpreMem[i]] or piplup.src2Reg[
+                        currIndex] == piplup.destReg[piplup.BUFFpreMem[i]]:
+                        IDMe = False
                         # break
-            for i in range(0, len(pipline.preALUBuff)):
-                if pipline.preALUBuff[i] != -1:
-                    if pipline.src1Reg[currIndex] == pipline.destReg[pipline.preALUBuff[i]] or pipline.src2Reg[
-                        currIndex] == pipline.destReg[pipline.preALUBuff[i]]:
-                        issueMe = False
+            for i in range(0, len(piplup.BUFFpreALU)):
+                if piplup.BUFFpreALU[i] != -1:
+                    if piplup.src1Reg[currIndex] == piplup.destReg[piplup.BUFFpreALU[i]] or piplup.src2Reg[
+                        currIndex] == piplup.destReg[piplup.BUFFpreALU[i]]:
+                        IDMe = False
                         # break
 
-            if pipline.postALUBuff[1] != -1:
-                if pipline.src1Reg[currIndex] == pipline.destReg[pipline.postALUBuff[1]] or pipline.src2Reg[
-                    currIndex] == pipline.destReg[pipline.postALUBuff[1]]:
-                    issueMe = False
-            if pipline.postMemBuff[1] != -1:
-                if pipline.src1Reg[currIndex] == pipline.destReg[pipline.postMemBuff[1]] or pipline.src2Reg[
-                    currIndex] == pipline.destReg[pipline.postMemBuff[1]]:
-                    issueMe = False
+            if piplup.BUFFpostALU[1] != -1:
+                if piplup.src1Reg[currIndex] == piplup.destReg[piplup.BUFFpostALU[1]] or piplup.src2Reg[
+                    currIndex] == piplup.destReg[piplup.BUFFpostALU[1]]:
+                    IDMe = False
+            if piplup.BUFFpostMEM[1] != -1:
+                if piplup.src1Reg[currIndex] == piplup.destReg[piplup.BUFFpostMEM[1]] or piplup.src2Reg[
+                    currIndex] == piplup.destReg[piplup.BUFFpostMEM[1]]:
+                    IDMe = False
 
             ## WAW CHECK
             for i in range(0, current):
-                if pipline.destReg[currIndex] == pipline.destReg[pipline.preIssueBuff[i]]:
-                    issueMe = False
+                if piplup.destReg[currIndex] == piplup.destReg[piplup.BUFFpreIssue[i]]:
+                    IDMe = False
 
-            for i in range(0, len(pipline.preMemBuff)):
-                if pipline.preMemBuff[i] != -1:
-                    if pipline.destReg[currIndex] == pipline.destReg[pipline.preMemBuff[i]]:
-                        issueMe = False
-            for i in range(0, len(pipline.preALUBuff)):
-                if pipline.preALUBuff[i] != -1:
-                    if pipline.destReg[currIndex] == pipline.destReg[pipline.preALUBuff[i]]:
-                        issueMe = False
-            if pipline.postALUBuff[1] != -1:
-                if pipline.destReg[currIndex] == pipline.destReg[pipline.postALUBuff[1]]:
-                    issueMe = False
-            if pipline.postMemBuff[1] != -1:
-                if pipline.destReg[currIndex] == pipline.destReg[pipline.postMemBuff[1]]:
-                    issueMe = False
+            for i in range(0, len(piplup.BUFFpreMem)):
+                if piplup.BUFFpreMem[i] != -1:
+                    if piplup.destReg[currIndex] == piplup.destReg[piplup.BUFFpreMem[i]]:
+                        IDMe = False
+            for i in range(0, len(piplup.BUFFpreALU)):
+                if piplup.BUFFpreALU[i] != -1:
+                    if piplup.destReg[currIndex] == piplup.destReg[piplup.BUFFpreALU[i]]:
+                        IDMe = False
+            if piplup.BUFFpostALU[1] != -1:
+                if piplup.destReg[currIndex] == piplup.destReg[piplup.BUFFpostALU[1]]:
+                    IDMe = False
+            if piplup.BUFFpostMEM[1] != -1:
+                if piplup.destReg[currIndex] == piplup.destReg[piplup.BUFFpostMEM[1]]:
+                    IDMe = False
 
-            if (pipline.instrName[currIndex] == 'LW'):
+            if (piplup.iName[currIndex] == 'LW'):
                 for i in range(0, current):
-                    if pipline.instrName[pipline.preIssueBuff[i]] == 'SW':
-                        issueMe = False
+                    if piplup.iName[piplup.BUFFpreIssue[i]] == 'SW':
+                        IDMe = False
 
-            if issueMe:
+            if IDMe:
                 numIssued += 1
-                if pipline.isMemOp(currIndex):
-                    pipline.preMemBuff[pipline.preMemBuff.index(-1)] = currIndex
+                if piplup.isMemOp(currIndex):
+                    piplup.BUFFpreMem[piplup.BUFFpreMem.index(-1)] = currIndex
                 else:
-                    pipline.preALUBuff[pipline.preALUBuff.index(-1)] = currIndex
+                    piplup.BUFFpreALU[piplup.BUFFpreALU.index(-1)] = currIndex
 
-                pipline.preIssueBuff[current:3] = pipline.preIssueBuff[current + 1:]
-                pipline.preIssueBuff[3] = -1
+                piplup.BUFFpreIssue[current:3] = piplup.BUFFpreIssue[current + 1:]
+                piplup.BUFFpreIssue[3] = -1
                 numInPreIssueBuff -= 1
             else:
                 current += 1
 
 
-class instructionFetch:
+class IFstage:
     cleanup = False
     noHazards = True
     wait = -1
@@ -541,179 +541,179 @@ class instructionFetch:
 
     def checkForBranchHazards(self, index):
         for i in range(4):
-            if pipline.preIssueBuff[i] != -1:
-                if pipline.src1Reg[index] == pipline.destReg[pipline.preIssueBuff[i]]:
+            if piplup.BUFFpreIssue[i] != -1:
+                if piplup.src1Reg[index] == piplup.destReg[piplup.BUFFpreIssue[i]]:
                     self.noHazards = False
-        if (pipline.preMemBuff[0] != -1):
-            if pipline.src1Reg[index] == pipline.destReg[pipline.preMemBuff[0]]:
+        if (piplup.BUFFpreMem[0] != -1):
+            if piplup.src1Reg[index] == piplup.destReg[piplup.BUFFpreMem[0]]:
                 self.noHazards = False
-        if (pipline.preMemBuff[1] != -1):
-            if pipline.src1Reg[index] == pipline.destReg[pipline.preMemBuff[1]]:
+        if (piplup.BUFFpreMem[1] != -1):
+            if piplup.src1Reg[index] == piplup.destReg[piplup.BUFFpreMem[1]]:
                 self.noHazards = False
-        if (pipline.preALUBuff[0] != -1):
-            if pipline.src1Reg[index] == pipline.destReg[pipline.preALUBuff[0]]:
+        if (piplup.BUFFpreALU[0] != -1):
+            if piplup.src1Reg[index] == piplup.destReg[piplup.BUFFpreALU[0]]:
                 self.noHazards = False
-        if (pipline.preALUBuff[1] != -1):
-            if pipline.src1Reg[index] == pipline.destReg[pipline.preALUBuff[1]]:
+        if (piplup.BUFFpreALU[1] != -1):
+            if piplup.src1Reg[index] == piplup.destReg[piplup.BUFFpreALU[1]]:
                 self.noHazards = False
-        if (pipline.postALUBuff[1] != -1):
-            if pipline.src1Reg[index] == pipline.destReg[pipline.postALUBuff[1]]:
+        if (piplup.BUFFpostALU[1] != -1):
+            if piplup.src1Reg[index] == piplup.destReg[piplup.BUFFpostALU[1]]:
                 self.noHazards = False
-        if (pipline.postMemBuff[1] != -1):
+        if (piplup.BUFFpostMEM[1] != -1):
 
-            if pipline.src1Reg[index] == pipline.destReg[pipline.postMemBuff[1]]:
+            if piplup.src1Reg[index] == piplup.destReg[piplup.BUFFpostMEM[1]]:
                 self.noHazards = False
 
         if self.noHazards:
             pass
-        if pipline.instrName[index] == 'BLEZ':
+        if piplup.iName[index] == 'BLEZ':
             if self.noHazards:
-                if pipline.registers[pipline.src1Reg[index]] <= 0:
-                    pipline.PC += (pipline.args3[index])
-                    pipline.PC += 4
+                if piplup.registers[piplup.src1Reg[index]] <= 0:
+                    piplup.PC += (piplup.args3[index])
+                    piplup.PC += 4
                 else:
-                    pipline.PC += 4
-        if pipline.instrName[index] == 'BNE':
-            if pipline.src2Reg[index] in [pipline.destReg[pipline.preALUBuff[0]],
-                                          pipline.destReg[pipline.preMemBuff[0]],
-                                          pipline.destReg[pipline.preMemBuff[1]],
-                                          pipline.destReg[pipline.preALUBuff[1]]]:
+                    piplup.PC += 4
+        if piplup.iName[index] == 'BNE':
+            if piplup.src2Reg[index] in [piplup.destReg[piplup.BUFFpreALU[0]],
+                                          piplup.destReg[piplup.BUFFpreMem[0]],
+                                          piplup.destReg[piplup.BUFFpreMem[1]],
+                                          piplup.destReg[piplup.BUFFpreALU[1]]]:
                 self.noHazards = False
             if self.noHazards:
-                if (pipline.registers[pipline.src1Reg[index]] != pipline.registers[pipline.src2Reg[index]]):
-                    pipline.PC += pipline.args3[index]
-                    pipline.PC += 4
+                if (piplup.registers[piplup.src1Reg[index]] != piplup.registers[piplup.src2Reg[index]]):
+                    piplup.PC += piplup.args3[index]
+                    piplup.PC += 4
                     return True
                 else:
-                    pipline.PC += 4
+                    piplup.PC += 4
 
     def run(self):
-        index = (pipline.PC - 96) / 4
+        index = (piplup.PC - 96) / 4
         index1 = index
         numInPre = 0
         numIssued = 0
 
-        for i in range(len(pipline.preIssueBuff)):
-            if pipline.preIssueBuff[i] != -1:
+        for i in range(len(piplup.BUFFpreIssue)):
+            if piplup.BUFFpreIssue[i] != -1:
                 numInPre += 1
 
-        if (pipline.instrName[index] == 'BREAK'):
+        if (piplup.iName[index] == 'BREAK'):
             self.cleanup = True
             self.wait = 1
         elif not self.cleanup and numInPre < 4:  # 1
-            hit, data1 = pipline.cache.accessMemory(-1, index, 0, 0)
+            hit, data1 = piplup.cache.accessMemory(-1, index, 0, 0)
 
-            if hit and (pipline.PC % 8 == 0) and not self.cleanup and numInPre < 4:
+            if hit and (piplup.PC % 8 == 0) and not self.cleanup and numInPre < 4:
                 self.noHazards = True
-                if (pipline.instrName[index] in ['BNE', 'BLEZ']):
+                if (piplup.iName[index] in ['BNE', 'BLEZ']):
                     self.checkForBranchHazards(index)
-                elif (pipline.instrName[index] == 'J'):
-                    pipline.PC = pipline.args1[index]
+                elif (piplup.iName[index] == 'J'):
+                    piplup.PC = piplup.args1[index]
                     numIssued += 1
-                elif (pipline.instrName[index] == 'JR'):
-                    pipline.PC = pipline.registers[pipline.src1Reg[index]]
-                elif (pipline.instrName[index] == 'Invalid Instruction'):
-                    pipline.PC += 4
-                elif (pipline.instrName[index] == 'BREAK'):
+                elif (piplup.iName[index] == 'JR'):
+                    piplup.PC = piplup.registers[piplup.src1Reg[index]]
+                elif (piplup.iName[index] == 'Invalid Instruction'):
+                    piplup.PC += 4
+                elif (piplup.iName[index] == 'BREAK'):
                     self.cleanup = True
                     self.wait = 1
-                elif (pipline.instrName[index] == 'SW'):
-                    address = pipline.args3[index] + pipline.registers[pipline.src2Reg[index]]
+                elif (piplup.iName[index] == 'SW'):
+                    address = piplup.args3[index] + piplup.registers[piplup.src2Reg[index]]
                     self.memoryoverflow(address)
-                    pipline.preIssueBuff[numInPre] = index
-                    pipline.PC += 4
+                    piplup.BUFFpreIssue[numInPre] = index
+                    piplup.PC += 4
                     numInPre += 1
                 else:
-                    pipline.preIssueBuff[numInPre] = index
-                    pipline.PC += 4
+                    piplup.BUFFpreIssue[numInPre] = index
+                    piplup.PC += 4
                     numInPre += 1
 
-                if (((pipline.PC - 96) / 4) == index + 1) and numInPre < 4:
+                if (((piplup.PC - 96) / 4) == index + 1) and numInPre < 4:
                     index = index + 1
-                    if (pipline.instrName[index] in ['BNE', 'BLEZ']):
+                    if (piplup.iName[index] in ['BNE', 'BLEZ']):
                         self.checkForBranchHazards(index)
-                    elif (pipline.instrName[index] == 'J'):
-                        pipline.PC = pipline.args1[index]
+                    elif (piplup.iName[index] == 'J'):
+                        piplup.PC = piplup.args1[index]
                         numIssued += 1
-                    elif (pipline.instrName[index] == 'JR'):
-                        pipline.PC = pipline.registers[pipline.src1Reg[index]]
-                    elif (pipline.instrName[index] == 'Invalid Instruction'):
-                        pipline.PC += 4
-                    elif (pipline.instrName[index] == 'BREAK'):
+                    elif (piplup.iName[index] == 'JR'):
+                        piplup.PC = piplup.registers[piplup.src1Reg[index]]
+                    elif (piplup.iName[index] == 'Invalid Instruction'):
+                        piplup.PC += 4
+                    elif (piplup.iName[index] == 'BREAK'):
                         self.cleanup = True
                         self.wait = 1
-                    elif (pipline.instrName[index] == 'SW'):
-                        address = pipline.args3[index] + pipline.registers[pipline.src2Reg[index]]
+                    elif (piplup.iName[index] == 'SW'):
+                        address = piplup.args3[index] + piplup.registers[piplup.src2Reg[index]]
                         self.memoryoverflow(address)
-                        pipline.preIssueBuff[numInPre] = index
-                        pipline.PC += 4
+                        piplup.BUFFpreIssue[numInPre] = index
+                        piplup.PC += 4
                         numInPre += 1
                     else:
 
-                        pipline.preIssueBuff[numInPre] = index
-                        pipline.PC += 4
+                        piplup.BUFFpreIssue[numInPre] = index
+                        piplup.PC += 4
                         numInPre += 1
 
             elif hit and not self.cleanup and numInPre < 4:
                 self.noHazards = True
-                if (pipline.instrName[index] in ['BNE', 'BLEZ']):
+                if (piplup.iName[index] in ['BNE', 'BLEZ']):
                     self.checkForBranchHazards(index)
-                elif (pipline.instrName[index] == 'J'):
-                    pipline.PC = pipline.args1[index]
+                elif (piplup.iName[index] == 'J'):
+                    piplup.PC = piplup.args1[index]
                     numIssued += 1
-                elif (pipline.instrName[index] == 'JR'):
-                    pipline.PC = pipline.registers[pipline.src1Reg[index]]
-                elif (pipline.instrName[index] == 'Invalid Instruction'):
-                    pipline.PC += 4
-                elif (pipline.instrName[index] == 'BREAK'):
+                elif (piplup.iName[index] == 'JR'):
+                    piplup.PC = piplup.registers[piplup.src1Reg[index]]
+                elif (piplup.iName[index] == 'Invalid Instruction'):
+                    piplup.PC += 4
+                elif (piplup.iName[index] == 'BREAK'):
                     self.cleanup = True
                     self.wait = 1
-                elif (pipline.instrName[index] == 'SW'):
-                    address = pipline.args3[index] + pipline.registers[pipline.src2Reg[index]]
+                elif (piplup.iName[index] == 'SW'):
+                    address = piplup.args3[index] + piplup.registers[piplup.src2Reg[index]]
                     self.memoryoverflow(address)
-                    pipline.preIssueBuff[numInPre] = index
-                    pipline.PC += 4
+                    piplup.BUFFpreIssue[numInPre] = index
+                    piplup.PC += 4
                     numInPre += 1
                 else:
-                    pipline.preIssueBuff[numInPre] = index
-                    pipline.PC += 4
+                    piplup.BUFFpreIssue[numInPre] = index
+                    piplup.PC += 4
                     numInPre += 1
 
         if (self.cleanup):
             for i in range(4):
-                if pipline.preIssueBuff[i] != -1:
+                if piplup.BUFFpreIssue[i] != -1:
                     return True
-            if (pipline.preMemBuff[0] != -1) or (pipline.preMemBuff[1] != -1) or (pipline.preALUBuff[0] != -1) or (
-                    pipline.preALUBuff[1] != -1):
+            if (piplup.BUFFpreMem[0] != -1) or (piplup.BUFFpreMem[1] != -1) or (piplup.BUFFpreALU[0] != -1) or (
+                    piplup.BUFFpreALU[1] != -1):
                 self.wait = 1
                 return True
-            elif (pipline.postMemBuff[1] != -1 or pipline.postALUBuff[1] != -1):
+            elif (piplup.BUFFpostMEM[1] != -1 or piplup.BUFFpostALU[1] != -1):
                 self.wait = 1
                 return True
-            elif (pipline.instrName[index1] not in ['BNE', 'BLEZ', 'J', 'JR']):
+            elif (piplup.iName[index1] not in ['BNE', 'BLEZ', 'J', 'JR']):
                 self.wait -= 1
             if (self.wait == 1):
                 self.wait -= 1
                 return True
-            elif (pipline.instrName[index] == 'SW'):
-                address = pipline.args3[index] + pipline.registers[pipline.src2Reg[index]]
+            elif (piplup.iName[index] == 'SW'):
+                address = piplup.args3[index] + piplup.registers[piplup.src2Reg[index]]
                 self.memoryoverflow(address)
-                pipline.preIssueBuff[numInPre] = index
-                pipline.PC += 4
+                piplup.BUFFpreIssue[numInPre] = index
+                piplup.PC += 4
                 numInPre += 1
             else:
                 return False
             if (self.wait == 0):
                 return False
-        if (pipline.cycle > 100):
+        if (piplup.cycle > 100):
             return False
         return True
 
     def memoryoverflow(self, memcheck):
-     while memcheck >= len(pipline.memory):
-         pipline.address.append(96 + (len(pipline.address) * 4))
+     while memcheck >= len(piplup.memory):
+         piplup.address.append(96 + (len(piplup.address) * 4))
          for x in range(0, 7):
-             pipline.memory.append(0)
+             piplup.memory.append(0)
 
 
 class cacheUnit:
@@ -735,18 +735,18 @@ class cacheUnit:
             if (self.cacheSet[s][0][2] == 1):
                 wbAddr = self.cacheSet[s][0][2]  # tag of mem
                 wbAddr = (wbAddr << 5) + (s << 3)  # converted to address with s
-                index = (wbAddr - 96 - (4 * pipline.numInstructions)) / 4  # index of mem
+                index = (wbAddr - 96 - (4 * piplup.numInstructions)) / 4  # index of mem
                 self.cacheSet[s][0][1] = 0  # reset dirty bit
-                pipline.memory[index] = self.cacheSet[s][0][3]  # change value in memory 1st word
-                pipline.memory[index + 1] = self.cacheSet[s][0][4]  # change value in memory 2nd word
+                piplup.memory[index] = self.cacheSet[s][0][3]  # change value in memory 1st word
+                piplup.memory[index + 1] = self.cacheSet[s][0][4]  # change value in memory 2nd word
             elif (self.cacheSet[s][1][1] == 1):
                 wbAddr = self.cacheSet[s][1][2]
                 wbAddr = (wbAddr << 5) + (s << 3)
-                index = (wbAddr - 96 - (4 * pipline.numInstructions)) / 4
+                index = (wbAddr - 96 - (4 * piplup.numInstructions)) / 4
                 self.cacheSet[s][1][1] = 0  # reset dirty bit
                 self.memoryoverflow(index + 1)
-                pipline.memory[index] = self.cacheSet[s][1][3]  # change value in memory 1st word
-                pipline.memory[index + 1] = self.cacheSet[s][1][4]  # change value in memory 2nd word
+                piplup.memory[index] = self.cacheSet[s][1][3]  # change value in memory 1st word
+                piplup.memory[index + 1] = self.cacheSet[s][1][4]  # change value in memory 2nd word
                 self.cacheSet[s][1][1] = 0
 
     def accessMemory(self, memIndex, instrIndex, isWriteTomem, dataToWrite):
@@ -762,10 +762,10 @@ class cacheUnit:
                 address1 = address - 4
                 address2 = address
             #print instrIndex
-            data1 = pipline.instruction[(address1 - 96) / 4]
-            data2 = pipline.instruction[(address2 - 96) / 4]
+            data1 = piplup.instruction[(address1 - 96) / 4]
+            data2 = piplup.instruction[(address2 - 96) / 4]
         else:
-            address = (memIndex * 4) + 96 + (4 * pipline.numInstructions)
+            address = (memIndex * 4) + 96 + (4 * piplup.numInstructions)
             if (address % 8 == 0):  # address 96+n8
                 dataword = 0  # block 0 was the address
                 address1 = address
@@ -774,11 +774,11 @@ class cacheUnit:
                 dataword = 1  # block 1 was the address
                 address1 = address - 4
                 address2 = address
-            addresscheck1 = (address1 - (96 + (4 * pipline.numInstructions))) / 4
-            addresscheck2 = (address2 - (96 + (4 * pipline.numInstructions))) / 4
+            addresscheck1 = (address1 - (96 + (4 * piplup.numInstructions))) / 4
+            addresscheck2 = (address2 - (96 + (4 * piplup.numInstructions))) / 4
             self.memoryoverflow(max(addresscheck1, addresscheck2))
-            data1 = pipline.memory[addresscheck1]
-            data2 = pipline.memory[addresscheck2]
+            data1 = piplup.memory[addresscheck1]
+            data2 = piplup.memory[addresscheck2]
 
         # 4
         if (isWriteTomem and dataword == 0):
@@ -826,11 +826,11 @@ class cacheUnit:
 
                     wbAddr = (wbAddr << 5) + (setNum << 3)
 
-                    if (wbAddr >= (pipline.numInstructions * 4) + 96):
-                        pipline.memory[pipline.getIndexOfMemAddress(wbAddr)] = \
+                    if (wbAddr >= (piplup.numInstructions * 4) + 96):
+                        piplup.memory[piplup.getIndexOfMemAddress(wbAddr)] = \
                         self.cacheSet[setNum][self.lruBit[setNum]][3]
-                    if (wbAddr + 4 >= (pipline.numInstructions * 4) + 96):
-                        pipline.memory[pipline.getIndexOfMemAddress(wbAddr + 4)] = \
+                    if (wbAddr + 4 >= (piplup.numInstructions * 4) + 96):
+                        piplup.memory[piplup.getIndexOfMemAddress(wbAddr + 4)] = \
                         self.cacheSet[setNum][self.lruBit[setNum]][4]
                     # now update the cache flag bits
                 self.cacheSet[setNum][self.lruBit[setNum]][0] = 1  # valid  we are writing a block
@@ -845,7 +845,7 @@ class cacheUnit:
 
                 if (memIndex != -1):
                     if type(data1) == str and type(data2) == str:
-                        if data1[0] == '1':  # if pipline.registers[pipline.src1Reg[i]] < 0:
+                        if data1[0] == '1':  # if piplup.registers[piplup.src1Reg[i]] < 0:
                             intdata1 = ((int(data1, 2) ^ 0b11111111111111111111111111111111) + 1) * -1
                         else:
                             intdata1 = int(data1, 2)
@@ -864,45 +864,45 @@ class cacheUnit:
                     dataword + 3]]  # dataword was the actual word thatgenerated the hit
 
     def memoryoverflow(self, memcheck):
-     while memcheck >= len(pipline.memory):
-         pipline.address.append(96 + (len(pipline.address) * 4))
+     while memcheck >= len(piplup.memory):
+         piplup.address.append(96 + (len(piplup.address) * 4))
          for x in range(0, 7):
-             datalist.append(0)
+             dataList.append(0)
 
 class simClass(object):
     instruction = []
     opcode = []
     memory = []
-    validInstr = []
+    validi = []
     address = []
     numInstructions = 0
-    instrName = []
-    arg1 = []
-    arg2 = []
-    arg3 = []
+    iName = []
+    firstArg = []
+    secondArg = []
+    thirdArg = []
     destReg = []
     src1Reg = []
     src2Reg = []
     cycle = 1
     registers = []
-    preMemBuff = [-1, -1]  # first number is index, second is index
-    postMemBuff = [-1, -1]  # first number is value, scond is instruction index
-    preALUBuff = [-1, -1]  # first number is index, second is index, 2 instructions
-    postALUBuff = [-1, -1]  # first number is value, second is instr index
-    preIssueBuff = [-1, -1, -1, -1]  # list of 4 instruction indices
-    WB = writeBack()
-    ALU = arithmeticLogicUnit()
-    MEM = memWrite()
-    issue = issueUnit()
-    fetch = instructionFetch()
+    BUFFpreMem = [-1, -1]  # first number is index, second is index
+    BUFFpostMEM = [-1, -1]  # first number is value, scond is instruction index
+    BUFFpreALU = [-1, -1]  # first number is index, second is index, 2 instructions
+    BUFFpostALU = [-1, -1]  # first number is value, second is instr index
+    BUFFpreIssue = [-1, -1, -1, -1]  # list of 4 instruction indices
+    WB = WBstage()
+    ALU = ALUstage()
+    MEM = MEMstage()
+    ID = IDstage()
+    IF = IFstage()
     cache = cacheUnit()
     PC = 96
 
-    def __init__(self, instrs, opcodes, mem, valids, addrs, args1, args2, args3, numInstrs, dest, src1, src2, instrName, pipelineoutput):
+    def __init__(self, instrs, opcodes, mem, valids, addrs, args1, args2, args3, numInstrs, dest, src1, src2, iName, pipelineoutput):
         self.instruction = instrs
         self.opcode = opcodes
         self.memory = mem
-        self.validInstr = valids
+        self.validi = valids
         self.address = addrs
         self.numInstructions = numInstrs
         self.args1 = args1
@@ -911,14 +911,14 @@ class simClass(object):
         self.destReg = dest
         self.src1Reg = src1
         self.src2Reg = src2
-        self.instrName = instrName
+        self.iName = iName
         self.pipelineoutput = pipelineoutput
 
     def getIndexOfMemAddress(self, bin_addr):
         return ((bin_addr - (96 + (4 * self.numInstructions))) / 4)
 
     def isMemOp(self, index):
-        if self.instrName[index] in ['LW', 'SW']:
+        if self.iName[index] in ['LW', 'SW']:
             return True
         return False
 
@@ -930,8 +930,8 @@ class simClass(object):
             self.WB.run()
             self.ALU.run()
             self.MEM.run()
-            self.issue.run()
-            go = self.fetch.run()
+            self.ID.run()
+            go = self.IF.run()
 
             if not go:
                 self.cache.finalFlush()
@@ -942,43 +942,43 @@ class simClass(object):
         formattedInstr = ['', '', '', '', '', '', '', '', '', '']
         indices = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
         for i in range(4):
-            indices[i] = (self.preIssueBuff[i])
+            indices[i] = (self.BUFFpreIssue[i])
 
-        indices[4] = self.preALUBuff[0]
-        indices[5] = self.preALUBuff[1]
-        indices[6] = self.postALUBuff[1]
-        indices[7] = self.preMemBuff[0]
-        indices[8] = self.preMemBuff[1]
-        indices[9] = self.postMemBuff[1]
+        indices[4] = self.BUFFpreALU[0]
+        indices[5] = self.BUFFpreALU[1]
+        indices[6] = self.BUFFpostALU[1]
+        indices[7] = self.BUFFpreMem[0]
+        indices[8] = self.BUFFpreMem[1]
+        indices[9] = self.BUFFpostMEM[1]
 
         for i in range(0, 10):
-            #print instrName[i]
+            #print iName[i]
             if indices[i] > -1:
-                if instrName[indices[i]] in ['MOVZ', 'ADD', 'SUB', 'AND', 'OR','XOR' 'MUL']:
-                    formattedInstr[i] = '\t[' + self.instrName[indices[i]] + '\tR' + str(
+                if iName[indices[i]] in ['MOVZ', 'ADD', 'SUB', 'AND', 'OR','XOR' 'MUL']:
+                    formattedInstr[i] = '\t[' + self.iName[indices[i]] + '\tR' + str(
                         self.args3[indices[i]]) + ', R' + str(self.args1[indices[i]]) + ', R' + str(
                         self.args2[indices[i]]) + ']'
-                elif instrName[indices[i]] in ['SLL', 'SRL']:
-                    formattedInstr[i] = '\t[' + self.instrName[indices[i]] + '\tR' + str(
+                elif iName[indices[i]] in ['SLL', 'SRL']:
+                    formattedInstr[i] = '\t[' + self.iName[indices[i]] + '\tR' + str(
                         self.args1[indices[i]]) + ', R' + str(self.args2[indices[i]]) + ', #' + str(
                         self.args3[indices[i]]) + ']'
-                elif instrName[indices[i]] in ['BNE', 'ADDI']:
-                    formattedInstr[i] = '\t[' + self.instrName[indices[i]] + '\tR' + str(
+                elif iName[indices[i]] in ['BNE', 'ADDI']:
+                    formattedInstr[i] = '\t[' + self.iName[indices[i]] + '\tR' + str(
                         self.args2[indices[i]]) + ', R' + str(self.args1[indices[i]]) + ', #' + str(
                         self.args3[indices[i]]) + ']'
-                elif instrName[indices[i]] in ['SW', 'LW']:
-                    formattedInstr[i] = '\t[' + self.instrName[indices[i]] + '\tR' + str(
+                elif iName[indices[i]] in ['SW', 'LW']:
+                    formattedInstr[i] = '\t[' + self.iName[indices[i]] + '\tR' + str(
                         self.args2[indices[i]]) + ', ' + str(self.args3[indices[i]]) + '(R' + str(
                         self.args1[indices[i]]) + ')' + ']'
-                elif instrName[indices[i]] == 'BLEZ':
+                elif iName[indices[i]] == 'BLEZ':
                     formattedInstr[i] = '\t[' + 'BLEZ\tR' + str(self.args1[indices[i]]) + ', #' + str(
                         self.args3[indices[i]]) + ']'
-                elif instrName[indices[i]] == 'J':
+                elif iName[indices[i]] == 'J':
                     formattedInstr[i] = '\t[' + 'J\t#' + str(self.args1[indices[i]]) + ']'
-                elif instrName[indices[i]] == 'JR':
+                elif iName[indices[i]] == 'JR':
                     formattedInstr[i] = '\t[' + 'JR\tR' + str(self.args1[indices[i]]) + ']'
-                elif instrName[indices[i]] in ['NOP', 'BREAK', 'Invalid Instruction']:
-                    formattedInstr[i] = '\t[' + self.instrName[indices[i]] + ']'
+                elif iName[indices[i]] in ['NOP', 'BREAK', 'Invalid Instruction']:
+                    formattedInstr[i] = '\t[' + self.iName[indices[i]] + ']'
             else:
                 formattedInstr[i] = ''
 
@@ -1057,12 +1057,12 @@ for i in range(len(sys.argv)):
         outputfilename2 = outputfilename + "_pipeline.txt"
         outputfilename = outputfilename + "_dis.txt"
 if not inputfilename:#default file names if not given
-    inputfilename = "test3_bin.txt"
+    inputfilename = "test1_bin.txt"
 if not outputfilename:
     outputfilename = "team2_out_dis.txt"
     outputfilename2 = "team2_out_pipeline.txt"
 dissasembler1.dirty_work(inputfilename, outputfilename)
 pipelineoutput = open(outputfilename2, 'w')
-pipline = simClass(instruction, opcodelist, datalist, validInstr, address, arg1, arg2, arg3, numInstrs,
-destReg, src1Reg, src2Reg, instrName, pipelineoutput)
-pipline.run()
+piplup = simClass(instruction, opList, dataList, validi, address, firstArg, secondArg, thirdArg, numInstrs,
+destReg, src1Reg, src2Reg, iName, pipelineoutput)
+piplup.run()
