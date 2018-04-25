@@ -570,6 +570,7 @@ class instructionFetch:
             if self.noHazards:
                 if pipline.registers[pipline.src1Reg[index]] <= 0:
                     pipline.PC += (pipline.args3[index])
+                    pipline.PC += 4
                 else:
                     pipline.PC += 4
         if pipline.instrName[index] == 'BNE':
@@ -1056,7 +1057,7 @@ for i in range(len(sys.argv)):
         outputfilename2 = outputfilename + "_pipeline.txt"
         outputfilename = outputfilename + "_dis.txt"
 if not inputfilename:#default file names if not given
-    inputfilename = "test1_bin.txt"
+    inputfilename = "test3_bin.txt"
 if not outputfilename:
     outputfilename = "team2_out_dis.txt"
     outputfilename2 = "team2_out_pipeline.txt"
