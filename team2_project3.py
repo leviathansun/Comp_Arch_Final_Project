@@ -516,6 +516,11 @@ class IDstage:
                     if piplup.iName[piplup.BUFFpreIssue[i]] == 'SW':
                         IDMe = False
 
+            if (piplup.iName[currIndex] == 'SW'):
+                for i in range(0, current):
+                    if piplup.iName[piplup.BUFFpreIssue[i]] == 'SW':
+                        IDMe = False
+
             if IDMe:
                 numIssued += 1
                 if piplup.isMemOp(currIndex):
