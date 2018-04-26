@@ -709,10 +709,11 @@ class IFstage:
         return True
 
     def memoryoverflow(self, memcheck):
-     while memcheck >= len(piplup.memory):
-         piplup.address.append(96 + (len(piplup.address) * 4))
-         for x in range(0, 7):
-             piplup.memory.append(0)
+        memcheck = (memcheck -96)/4 - len(piplup.instruction)
+        print memcheck
+        while memcheck >= len(piplup.memory):
+            piplup.address.append(96 + (len(piplup.address) * 4))
+            piplup.memory.append(0)
 
 
 # class comments go here
@@ -744,7 +745,6 @@ class cacheUnit:
                 wbAddr = (wbAddr << 5) + (s << 3)
                 index = (wbAddr - 96 - (4 * piplup.numInstructions)) / 4
                 self.cacheSet[s][1][1] = 0
-                self.memoryoverflow(index + 1)
                 piplup.memory[index] = self.cacheSet[s][1][3]
                 piplup.memory[index + 1] = self.cacheSet[s][1][4]
                 self.cacheSet[s][1][1] = 0
@@ -774,7 +774,6 @@ class cacheUnit:
                 address2 = address
             addresscheck1 = (address1 - (96 + (4 * piplup.numInstructions))) / 4
             addresscheck2 = (address2 - (96 + (4 * piplup.numInstructions))) / 4
-            self.memoryoverflow(max(addresscheck1, addresscheck2))
             data1 = piplup.memory[addresscheck1]
             data2 = piplup.memory[addresscheck2]
 
@@ -851,11 +850,6 @@ class cacheUnit:
                 return [True, self.cacheSet[setNum][(self.lruBit[setNum] + 1) % 2][
                     dataword + 3]]
 
-    def memoryoverflow(self, memcheck):
-     while memcheck >= len(piplup.memory):
-         piplup.address.append(96 + (len(piplup.address) * 4))
-         for x in range(0, 7):
-             dataList.append(0)
 
 
 # class comments go here
@@ -1025,7 +1019,6 @@ class simClass(object):
         pipelineoutput.write('\nData')
         dataAddress = 96 + (self.numInstructions * 4)
         i = 0
-
         while i < len(self.memory):
             if (i % 8 == 0 and i == 0):
                 pipelineoutput.write('\n' + str(dataAddress) + ':' + str(self.memory[i])),
