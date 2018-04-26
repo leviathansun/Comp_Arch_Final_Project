@@ -345,7 +345,7 @@ class Dissasembler(object):
         return number
 
 
-# class comments go here
+# Writeback
 class WBstage:
     def __init__(self):
         pass
@@ -360,7 +360,7 @@ class WBstage:
             piplup.BUFFpostMEM[1] = -1
 
 
-# class comments go here
+# memory unit
 class MEMstage:
     def __init__(self):
         pass
@@ -386,7 +386,7 @@ class MEMstage:
                 piplup.BUFFpreMem[1] = -1
 
 
-# class comments go here
+# arithmetic logic unit
 class ALUstage:
 
     def __init__(self):
@@ -423,7 +423,7 @@ class ALUstage:
             pass
 
 
-# class comments go here
+# Instruction Decode
 class IDstage:
     def __init__(self):
         pass
@@ -530,7 +530,7 @@ class IDstage:
                 current += 1
 
 
-# class comments go here
+# Instruction Fetch
 class IFstage:
     cleanup = False
     noHazards = True
@@ -581,7 +581,7 @@ class IFstage:
             if self.noHazards:
                 if (piplup.registers[piplup.src1Reg[index]] != piplup.registers[piplup.src2Reg[index]]):
                     piplup.PC += piplup.args3[index]
-                    piplup.PC += 4
+                    #piplup.PC += 4
                     return True
                 else:
                     piplup.PC += 4
@@ -709,13 +709,13 @@ class IFstage:
         return True
 
     def memoryoverflow(self, memcheck):
-        memcheck = (memcheck -96)/4 - len(piplup.instruction)
+        memcheck = (memcheck - (96 + (4 * piplup.numInstructions))) / 4
         while memcheck >= len(piplup.memory):
             piplup.address.append(96 + (len(piplup.address) * 4))
             piplup.memory.append(0)
 
 
-# class comments go here
+# Caching unit
 class cacheUnit:
     cacheSet = [[[0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],
                 [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],
@@ -730,7 +730,7 @@ class cacheUnit:
         pass
 
 
-    def finalFlush(self):
+    def cacheFlush(self):
         for s in range(4):
             if (self.cacheSet[s][0][2] == 1):
                 wbAddr = self.cacheSet[s][0][2]
@@ -773,9 +773,9 @@ class cacheUnit:
                 address2 = address
             addresscheck1 = (address1 - (96 + (4 * piplup.numInstructions))) / 4
             addresscheck2 = (address2 - (96 + (4 * piplup.numInstructions))) / 4
+            self.memoryoverflow(max(addresscheck1, addresscheck2))
             data1 = piplup.memory[addresscheck1]
             data2 = piplup.memory[addresscheck2]
-
         if (isWriteTomem and dataword == 0):
             data1 = dataToWrite
         elif (isWriteTomem and dataword == 1):
@@ -848,10 +848,13 @@ class cacheUnit:
                 self.lruBit[setNum] = (self.lruBit[setNum] + 1) % 2
                 return [True, self.cacheSet[setNum][(self.lruBit[setNum] + 1) % 2][
                     dataword + 3]]
+    def memoryoverflow(self, memcheck):
+        while memcheck >= len(piplup.memory):
+            piplup.address.append(96 + (len(piplup.address) * 4))
+            piplup.memory.append(0)
 
 
-
-# class comments go here
+# Pipeline Simulator Class
 class simClass(object):
     instruction = []
     opcode = []
@@ -917,7 +920,7 @@ class simClass(object):
             go = self.IF.run()
 
             if not go:
-                self.cache.finalFlush()
+                self.cache.cacheFlush()
             self.printState()
             self.cycle+=1
 
