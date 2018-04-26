@@ -72,7 +72,7 @@ thirdArg = []
 destReg = []
 src1Reg = []
 src2Reg = []
-invalid = -1
+invalid = -5
 numInstrs = 0
 
 
@@ -251,7 +251,7 @@ class Dissasembler(object):
                                 secondArg.append(int(group2, 2))
                                 thirdArg.append(offset)
                                 if funct == 11:
-                                    destReg.append(invalid)
+                                    destReg.append(-2)
                                     invalid -= 1
                                     src1Reg.append(secondArg[counter])
                                     src2Reg.append(firstArg[counter])
@@ -261,7 +261,7 @@ class Dissasembler(object):
                                     src2Reg.append(invalid)
                                     invalid -= 1
                                 elif funct == 5:
-                                    destReg.append(invalid)
+                                    destReg.append(-3)
                                     invalid -= 1
                                     src1Reg.append(firstArg[counter])
                                     src2Reg.append(secondArg[counter])
@@ -439,13 +439,15 @@ class IDstage:
             if (piplup.BUFFpreIssue[i] != -1):
                 numInPreIssueBuff += 1
 
-        while (numIssued < 2 and numInPreIssueBuff > 0 and current < numInPreIssueBuff):
+        while (numIssued < 2 and numInPreIssueBuff > 0 and current < 4):
             IDMe = True
             currIndex = piplup.BUFFpreIssue[current]
             if piplup.isMemOp(currIndex) and not -1 in piplup.BUFFpreMem:
                 IDMe = False
             elif not piplup.isMemOp(currIndex) and not -1 in piplup.BUFFpreALU:
                 IDMe = False
+            if currIndex == -1:
+                break
 
             if current > 0:
                 for i in range(0, current):
@@ -458,8 +460,7 @@ class IDstage:
                         if piplup.destReg[currIndex] == piplup.src1Reg[piplup.BUFFpreMem[i]] or piplup.destReg[
                             currIndex] == piplup.src2Reg[piplup.BUFFpreMem[i]]:
                             IDMe = False
-
-            else:
+            if not piplup.isMemOp(currIndex):
                 for i in range(0, len(piplup.BUFFpreALU)):
                     if piplup.BUFFpreALU[i] != -1:
                         if piplup.destReg[currIndex] == piplup.src1Reg[piplup.BUFFpreALU[i]] or piplup.destReg[
@@ -512,12 +513,12 @@ class IDstage:
                     IDMe = False
 
             if (piplup.iName[currIndex] == 'LW'):
-                for i in range(0, current):
+                for i in range( 0, current ):
                     if piplup.iName[piplup.BUFFpreIssue[i]] == 'SW':
                         IDMe = False
 
             if (piplup.iName[currIndex] == 'SW'):
-                for i in range(0, current):
+                for i in range( 0, current ):
                     if piplup.iName[piplup.BUFFpreIssue[i]] == 'SW':
                         IDMe = False
 
@@ -528,11 +529,13 @@ class IDstage:
                 else:
                     piplup.BUFFpreALU[piplup.BUFFpreALU.index(-1)] = currIndex
 
+                piplup.BUFFpreIssue[0:current] = piplup.BUFFpreIssue[0:current]
                 piplup.BUFFpreIssue[current:3] = piplup.BUFFpreIssue[current + 1:]
                 piplup.BUFFpreIssue[3] = -1
                 numInPreIssueBuff -= 1
             else:
                 current += 1
+
 
 
 # Instruction Fetch
