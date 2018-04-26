@@ -710,7 +710,6 @@ class IFstage:
 
     def memoryoverflow(self, memcheck):
         memcheck = (memcheck -96)/4 - len(piplup.instruction)
-        print memcheck
         while memcheck >= len(piplup.memory):
             piplup.address.append(96 + (len(piplup.address) * 4))
             piplup.memory.append(0)
